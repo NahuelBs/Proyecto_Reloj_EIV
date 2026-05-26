@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.vhd": "vhdl",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "chip.h": "c"
     }
 }

@@ -33,8 +33,8 @@
             if (self) {
                 self->port = port;
                 self->pin = pin;
-                activate_digital_output(self);
-                Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, true);
+                deactivate_digital_output(self);
+                Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, true); // true->salida
             }
     
     return self;
@@ -42,13 +42,13 @@
 
     void activate_digital_output(digital_output_t self){
 
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, true);
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, true); //true->encendido
 
     }
 
     void deactivate_digital_output(digital_output_t self){
 
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, false);
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, false); //false->apagado
 
     }
 

@@ -157,8 +157,12 @@ static void Delay(void);
 
 /* === Public variable definitions ============================================================= */
 
-digital_output_t green_led;
-digital_output_t red_led;
+digital_output_t red_led;    //LED1
+digital_output_t yellow_led; //LED2
+digital_output_t green_led;  //LED3
+digital_output_t rgb_led_r;
+digital_output_t rgb_led_g;
+digital_output_t rgb_led_b;
 
 /* === Private variable definitions ============================================================ */
 
@@ -166,24 +170,20 @@ digital_output_t red_led;
 
 static void ConfigureLeds(void) {
     Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true); 
+    rgb_led_r = create_digital_output(LED_R_GPIO, LED_R_BIT);
 
     Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
+    rgb_led_g = create_digital_output(LED_G_GPIO, LED_G_BIT);
 
     Chip_SCU_PinMuxSet(LED_B_PORT, LED_B_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_B_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
+    rgb_led_b = create_digital_output(LED_B_GPIO, LED_B_BIT);
 
     /******************/
     Chip_SCU_PinMuxSet(LED_1_PORT, LED_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_1_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
+    red_led = create_digital_output(LED_1_GPIO, LED_1_BIT);
 
     Chip_SCU_PinMuxSet(LED_2_PORT, LED_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_2_FUNC);
-    red_led = create_digital_output(LED_2_GPIO, LED_2_BIT);
+    yellow_led = create_digital_output(LED_2_GPIO, LED_2_BIT);
 
     Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
     green_led = create_digital_output(LED_3_GPIO, LED_3_BIT); 
@@ -216,18 +216,18 @@ static void FlashLed(void) {
 
         switch (state) {
         case LED_RED_ON:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
+            activate_digital_output(rgb_led_r);
             break;
         case LED_GREEN_ON:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
+            activate_digital_output(rgb_led_g);
             break;
         case LED_BLUE_ON:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
+            activate_digital_output(rgb_led_b);
             break;
         default:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
+            deactivate_digital_output(rgb_led_r);
+            deactivate_digital_output(rgb_led_g);
+            deactivate_digital_output(rgb_led_b);
             break;
         }
     }
@@ -235,10 +235,10 @@ static void FlashLed(void) {
 
 static void SwitchLed(void) {
     if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
+        activate_digital_output(red_led);
     }
     if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0) {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, false);
+        deactivate_digital_output(red_led);
     }
 }
 
@@ -248,7 +248,7 @@ static void ToggleLed(void) {
 
     current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0);
     if ((current_state) && (!last_state)) {
-        toggle_digital_output(red_led);
+        toggle_digital_output(yellow_led);
     }
     last_state = current_state;
 }
