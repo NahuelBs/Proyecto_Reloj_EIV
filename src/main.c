@@ -37,6 +37,7 @@ SPDX-License-Identifier: MIT
 
 #include "board.h"
 #include "chip.h"
+#include "digital.h"
 #include <stdio.h>
 
 /* === Macros definitions ====================================================================== */
@@ -156,6 +157,9 @@ static void Delay(void);
 
 /* === Public variable definitions ============================================================= */
 
+digital_output_t green_led;
+digital_output_t red_led;
+
 /* === Private variable definitions ============================================================ */
 
 /* === Private function implementation ========================================================= */
@@ -163,7 +167,7 @@ static void Delay(void);
 static void ConfigureLeds(void) {
     Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
     Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true); 
 
     Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
     Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
@@ -179,12 +183,11 @@ static void ConfigureLeds(void) {
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
 
     Chip_SCU_PinMuxSet(LED_2_PORT, LED_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_2_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT, true);
+    red_led = create_digital_output(LED_2_GPIO, LED_2_BIT);
 
     Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
+    green_led = create_digital_output(LED_3_GPIO, LED_3_BIT); 
+
 }
 
 static void ConfigureKeys(void) {
@@ -204,6 +207,7 @@ static void ConfigureKeys(void) {
 static void FlashLed(void) {
     static int divisor = 0;
     static rgb_color_t state = LED_BLUE_OFF;
+    
 
     divisor++;
     if (divisor == 5) {
@@ -244,16 +248,19 @@ static void ToggleLed(void) {
 
     current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0);
     if ((current_state) && (!last_state)) {
-        Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT);
+        toggle_digital_output(red_led);
     }
     last_state = current_state;
 }
 
 static void TestLed(void) {
     if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
+        
+        activate_digital_output(green_led);
+
     } else {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
+        
+        deactivate_digital_output(green_led);
     }
 }
 
