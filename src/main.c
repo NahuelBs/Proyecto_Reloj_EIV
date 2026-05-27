@@ -157,12 +157,17 @@ static void Delay(void);
 
 /* === Public variable definitions ============================================================= */
 
-digital_output_t red_led;    //LED1
-digital_output_t yellow_led; //LED2
-digital_output_t green_led;  //LED3
+digital_output_t red_led;    
+digital_output_t yellow_led; 
+digital_output_t green_led;  
 digital_output_t rgb_led_r;
 digital_output_t rgb_led_g;
 digital_output_t rgb_led_b;
+
+digital_input_t one_key;
+digital_input_t two_key;
+digital_input_t three_key;
+digital_input_t four_key;
 
 /* === Private variable definitions ============================================================ */
 
@@ -192,16 +197,16 @@ static void ConfigureLeds(void) {
 
 static void ConfigureKeys(void) {
     Chip_SCU_PinMuxSet(TEC_1_PORT, TEC_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_1_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT, false);
+    one_key = create_digital_input(TEC_1_GPIO, TEC_1_BIT, true);
 
     Chip_SCU_PinMuxSet(TEC_2_PORT, TEC_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_2_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT, false);
+    two_key = create_digital_input(TEC_2_GPIO, TEC_2_BIT, true);
 
     Chip_SCU_PinMuxSet(TEC_3_PORT, TEC_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_3_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT, false);
+    three_key = create_digital_input(TEC_3_GPIO, TEC_3_BIT, true);
 
     Chip_SCU_PinMuxSet(TEC_4_PORT, TEC_4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_4_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT, false);
+    four_key = create_digital_input(TEC_4_GPIO, TEC_4_BIT, true);
 }
 
 static void FlashLed(void) {
@@ -234,10 +239,10 @@ static void FlashLed(void) {
 }
 
 static void SwitchLed(void) {
-    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
+    if (get_state_digital_input(one_key)) {
         activate_digital_output(red_led);
     }
-    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0) {
+    if (get_state_digital_input(two_key)) {
         deactivate_digital_output(red_led);
     }
 }
@@ -246,7 +251,7 @@ static void ToggleLed(void) {
     static bool last_state = false;
     bool current_state;
 
-    current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0);
+    current_state = (get_state_digital_input(three_key));
     if ((current_state) && (!last_state)) {
         toggle_digital_output(yellow_led);
     }
@@ -254,7 +259,7 @@ static void ToggleLed(void) {
 }
 
 static void TestLed(void) {
-    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
+    if (get_state_digital_input(four_key)) {
         
         activate_digital_output(green_led);
 
