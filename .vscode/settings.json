@@ -2,6 +2,7 @@
     "files.associations": {
         "*.vhd": "vhdl",
         "cstdlib": "c",
-        "chip.h": "c"
+        "chip.h": "c",
+        "stdbool.h": "c"
     }
 }

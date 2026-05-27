@@ -78,8 +78,6 @@ static void Delay(void);
 /* === Public variable definitions
  * ============================================================= */
 
-board_t board;
-
 /* === Private function implementation
  * ========================================================= */
 

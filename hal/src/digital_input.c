@@ -22,7 +22,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * =============================================================== */
 
 #include "digital_input.h"
-#include "chip.h"
+#include "placa.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -74,15 +74,15 @@ digital_input_t create_digital_input(uint8_t port, uint32_t pin,
     self->port = port;
     self->pin = pin;
     self->inverted = inverted;
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin,
-                        false); // false->entrada
+    gpio_set_dir(self->port, self->pin,
+                 false); // false->entrada
   }
 
   return self;
 }
 
 bool get_state_digital_input(digital_input_t self) {
-  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin) !=
+  return gpio_read(self->port, self->pin) !=
          self->inverted; // retorna el estado de la entrada false->presionado
                          // (hal fabricante),
                          //  con inverted se logra true->presionado (hal propia)

@@ -162,6 +162,31 @@ board_t create_board() {
   return &self;
 }
 
+/** @brief Functions responsible for the Hardware Abstraction Layer (HAL).
+ **    These functions fully encapsulate the calls to the manufacturer library
+ **    (LPCOpen), isolating direct access to the silicon. By centralizing the
+ **    hardware dependency within this module, portability and reusability of
+ * the
+ **    digital_output and digital_input drivers across different hardware
+ **    platforms are ensured.
+ */
+
+void gpio_set_dir(uint8_t port, uint32_t pin, bool direction) {
+  Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, port, pin, direction);
+}
+
+void gpio_set_state(uint8_t port, uint32_t pin, bool state) {
+  Chip_GPIO_SetPinState(LPC_GPIO_PORT, port, pin, state);
+}
+
+void gpio_toggle(uint8_t port, uint32_t pin) {
+  Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, port, pin);
+}
+
+bool gpio_read(uint8_t port, uint32_t pin) {
+  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, port, pin);
+}
+
 /* === End of documentation
  * ==================================================================== */
 /** @} End of module definition for doxygen */

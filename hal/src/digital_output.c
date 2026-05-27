@@ -22,7 +22,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * =============================================================== */
 
 #include "digital_output.h"
-#include "chip.h"
+#include "placa.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -42,7 +42,7 @@ struct digital_output_s {
 /**
  * @brief Reserves a contiguous memory block for N homogeneous objects of the
  * same type and size (static pool).
- * @return digital_input_t pointer to the allocated slot; returns NULL if no
+ * @return digital_output_t pointer to the allocated slot; returns NULL if no
  * space is available.
  */
 
@@ -73,8 +73,8 @@ digital_output_t create_digital_output(uint8_t port, uint32_t pin,
     self->pin = pin;
     self->inverted = inverted;
     deactivate_digital_output(self);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin,
-                        true); // true->salida
+    gpio_set_dir(self->port, self->pin,
+                 true); // true->salida
   }
 
   return self;
@@ -82,22 +82,21 @@ digital_output_t create_digital_output(uint8_t port, uint32_t pin,
 
 void activate_digital_output(digital_output_t self) {
 
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, !self->inverted);
+  gpio_set_state(self->port, self->pin, !self->inverted);
 }
 
 void deactivate_digital_output(digital_output_t self) {
 
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, self->inverted);
+  gpio_set_state(self->port, self->pin, self->inverted);
 }
 
 void toggle_digital_output(digital_output_t self) {
 
-  Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, self->port, self->pin);
+  gpio_toggle(self->port, self->pin);
 }
 
 bool get_state_digital_output(digital_output_t self) {
-  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin) !=
-         self->inverted;
+  return gpio_read(self->port, self->pin) != self->inverted;
 }
 
 /* === End of documentation

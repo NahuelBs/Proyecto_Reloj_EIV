@@ -64,6 +64,11 @@ typedef struct board_s {
 
 board_t create_board();
 
+void gpio_set_dir(uint8_t port, uint32_t pin, bool direction);
+void gpio_set_state(uint8_t port, uint32_t pin, bool state);
+void gpio_toggle(uint8_t port, uint32_t pin);
+bool gpio_read(uint8_t port, uint32_t pin);
+
 /* === End of documentation
  * ==================================================================== */
 #ifdef __cplusplus
