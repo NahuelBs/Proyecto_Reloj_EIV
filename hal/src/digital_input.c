@@ -1,5 +1,5 @@
 /************************************************************************************************
-Copyright (c) 2026, [Nahuel Blanco Suárez] <[nahuelbs95@gmail.com]>. All rights
+Copyright (c) 2026, Nahuel Blanco Suárez < nahuelbs95@gmail.com >. All rights
 reserved.
 
 This software is proprietary and confidential. Unauthorized copying,
