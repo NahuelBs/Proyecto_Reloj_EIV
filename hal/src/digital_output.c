@@ -1,5 +1,5 @@
 /************************************************************************************************
-Copyright (c) 2026, Nahuel Blanco Suárez < nahuelbs95@gmail.com >. All rights
+Copyright (c) 2026, Nahuel Blanco Suárez < nahuelbs95@gmail.com>. All rights
 reserved.
 
 This software is proprietary and confidential. Unauthorized copying,
@@ -18,27 +18,24 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * (HAL) designed to decouple the code from the manufacturer hardware.
  ** @{ */
 
-/* === Headers files inclusions
- * =============================================================== */
+/* === Headers files inclusions ==================================================================================== */
 
 #include "digital_output.h"
 #include "placa.h"
 #include <stdbool.h>
 #include <stddef.h>
 
-/* === Private data type declarations
- * ========================================================== */
+/* === Private data type declarations ============================================================================== */
 
 struct digital_output_s {
-
   uint8_t port;
   uint32_t pin;
   bool inverted;
   bool used;
 };
 
-/* === Private function implementation
- * ========================================================= */
+/* === Public function implementation ============================================================================== */
+
 /**
  * @brief Reserves a contiguous memory block for N homogeneous objects of the
  * same type and size (static pool).
@@ -48,50 +45,38 @@ struct digital_output_s {
 
 digital_output_t memory_reserve_digital_output(void) {
   static struct digital_output_s memory_pool[10] = {0};
-  digital_output_t slot = NULL;
-
+  digital_output_t slot                          = NULL;
   for (int i = 0; i < 10; i++) {
     if (!memory_pool[i].used) {
-      slot = &memory_pool[i];
+      slot                = &memory_pool[i];
       memory_pool[i].used = true;
       break;
     }
   }
-
   return slot;
 }
 
-/* === Public function implementation
- * ========================================================== */
-
-digital_output_t create_digital_output(uint8_t port, uint32_t pin,
-                                       bool inverted) {
+digital_output_t create_digital_output(uint8_t port, uint32_t pin, bool inverted) {
   digital_output_t self = memory_reserve_digital_output();
-
   if (self) {
-    self->port = port;
-    self->pin = pin;
+    self->port     = port;
+    self->pin      = pin;
     self->inverted = inverted;
     deactivate_digital_output(self);
-    gpio_set_dir(self->port, self->pin,
-                 true); // true->salida
+    gpio_set_dir(self->port, self->pin, true);     // true->salida
   }
-
   return self;
 }
 
 void activate_digital_output(digital_output_t self) {
-
   gpio_set_state(self->port, self->pin, !self->inverted);
 }
 
 void deactivate_digital_output(digital_output_t self) {
-
   gpio_set_state(self->port, self->pin, self->inverted);
 }
 
 void toggle_digital_output(digital_output_t self) {
-
   gpio_toggle(self->port, self->pin);
 }
 
@@ -99,7 +84,6 @@ bool get_state_digital_output(digital_output_t self) {
   return gpio_read(self->port, self->pin) != self->inverted;
 }
 
-/* === End of documentation
- * ==================================================================== */
+/* === End of documentation ======================================================================================== */
 
 /** @} End of module definition for doxygen */

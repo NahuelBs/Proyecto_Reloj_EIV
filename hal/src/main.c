@@ -19,8 +19,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * (HAL) designed to decouple the code from the manufacturer hardware.
  ** @{ */
 
-/* === Headers files inclusions
- * =============================================================== */
+/* === Headers files inclusions =============================================================== */
 
 #ifndef EDU_CIAA_NXP
 #error "This program can only be compiled for the EDU-CIAA-NXP board"
@@ -32,12 +31,12 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include "placa.h"
 #include <stdio.h>
 
-/* === Private data type declarations
- * ========================================================== */
+/* === Private data type declarations ========================================================== */
 
 /**
  * @brief Enumeration with color sequence of RGB led
  */
+
 typedef enum rgb_color_e {
   LED_RED_ON = 0,
   LED_RED_OFF,
@@ -47,49 +46,49 @@ typedef enum rgb_color_e {
   LED_BLUE_OFF,
 } rgb_color_t;
 
-/* === Private function declarations
- * =========================================================== */
+/* === Private function declarations =========================================================== */
 
 /**
  * @brief Function to flash RGB led in sequence
  */
+
 static void FlashLed(board_t board);
 
 /**
  * @brief Function to switch on and off a led with two keys
  */
+
 static void SwitchLed(board_t board);
 
 /**
  * @brief Function to switch on and off a led with a single key
  */
+
 static void ToggleLed(board_t board);
 
 /**
  * @brief Function to turn on a led while a key is pressed
  */
+
 static void TestLed(board_t board);
 
 /**
  * @brief Function to generate a delay of approximately 100 ms
  */
+
 static void Delay(void);
 
-/* === Public variable definitions
- * ============================================================= */
+/* === Public variable definitions ============================================================= */
 
-/* === Private function implementation
- * ========================================================= */
+/* === Private function implementation ========================================================= */
 
 static void FlashLed(board_t board) {
-  static int divisor = 0;
+  static int divisor       = 0;
   static rgb_color_t state = LED_BLUE_OFF;
-
   divisor++;
   if (divisor == 5) {
     divisor = 0;
-    state = (state + 1) % (LED_BLUE_OFF + 1);
-
+    state   = (state + 1) % (LED_BLUE_OFF + 1);
     switch (state) {
     case LED_RED_ON:
       activate_digital_output(board->rgb_led_r);
@@ -121,7 +120,6 @@ static void SwitchLed(board_t board) {
 static void ToggleLed(board_t board) {
   static bool last_state = false;
   bool current_state;
-
   current_state = (get_state_digital_input(board->three_key));
   if ((current_state) && (!last_state)) {
     toggle_digital_output(board->yellow_led);
@@ -131,11 +129,8 @@ static void ToggleLed(board_t board) {
 
 static void TestLed(board_t board) {
   if (get_state_digital_input(board->four_key)) {
-
     activate_digital_output(board->green_led);
-
   } else {
-
     deactivate_digital_output(board->green_led);
   }
 }
@@ -148,26 +143,20 @@ static void Delay(void) {
   }
 }
 
-/* === Public function implementation
- * ========================================================== */
+/* === Public function implementation ========================================================== */
 
 int main(void) {
-
   board_t board = create_board();
-
   while (true) {
     FlashLed(board);
     SwitchLed(board);
     ToggleLed(board);
     TestLed(board);
-
     Delay();
   }
-
   return 0;
 }
 
-/* === End of documentation
- * ==================================================================== */
+/* === End of documentation ==================================================================== */
 
 /** @} End of module definition for doxygen */

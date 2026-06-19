@@ -19,25 +19,20 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * (HAL) designed to decouple the code from the manufacturer hardware
  ** @{ */
 
-/* === Headers files inclusions
- * =============================================================== */
+/* === Headers files inclusions =============================================================== */
 
 #ifndef PLACA_H
 #define PLACA_H
-
 #include "digital_input.h"
 #include "digital_output.h"
 
-/* === Header C++
- * ============================================================================
- */
+/* === Header C++ ============================================================================ */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* === Public data type declarations
- * ========================================================== */
+/* === Public data type declarations ========================================================== */
 
 /**
  * @brief Structure representing the board peripherals. Protecting pointers
@@ -45,36 +40,29 @@ extern "C" {
  */
 
 typedef struct board_s {
-
   digital_output_t red_led;
   digital_output_t yellow_led;
   digital_output_t green_led;
   digital_output_t rgb_led_r;
   digital_output_t rgb_led_g;
   digital_output_t rgb_led_b;
-
   digital_input_t one_key;
   digital_input_t two_key;
   digital_input_t three_key;
   digital_input_t four_key;
 } const *const board_t;
 
-/* === Public function declarations
- * =========================================================== */
+/* === Public function declarations =========================================================== */
 
 board_t create_board();
-
 void gpio_set_dir(uint8_t port, uint32_t pin, bool direction);
 void gpio_set_state(uint8_t port, uint32_t pin, bool state);
 void gpio_toggle(uint8_t port, uint32_t pin);
 bool gpio_read(uint8_t port, uint32_t pin);
 
-/* === End of documentation
- * ==================================================================== */
+/* === End of documentation ==================================================================== */
 #ifdef __cplusplus
 }
 #endif
-
 /** @} End of module definition for doxygen */
-
 #endif /* PLACA_H */
