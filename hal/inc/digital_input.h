@@ -10,12 +10,12 @@ owner.
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
 
-/** \brief Interface declarations for the digital input abstraction.
+/** \brief Implementación de una abstracción orientada a objetos para entradas digitales.
  **
  **
- ** \addtogroup LAB4 LAB4 - Hardware Abstraction
- ** \brief Development of a custom object-oriented Hardware Abstraction Layer
- * (HAL) designed to decouple the code from the manufacturer hardware.
+ ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
+ ** \brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
+ * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
  ** @{ */
 
 /* === Headers files inclusions =============================================================== */
@@ -39,11 +39,37 @@ typedef struct digital_input_s *digital_input_t;
 
 /* === Public function declarations =========================================================== */
 
-digital_input_t create_digital_input(uint8_t port, uint32_t pin, bool inverted);
-bool get_state_digital_input(digital_input_t input);
-int has_changed_digital_input(digital_input_t input);
-bool has_activated_digital_input(digital_input_t input);
-bool has_deactivated_digital_input(digital_input_t input);
+/**
+ * @brief Constructor, encargado de inicializar el objeto.
+ * @param port puerto GPIO
+ * @param pin pin dentro del puerto.
+ */
+
+digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin);
+
+/**
+ * @brief Función encargada de leer el estado actual de la terminal
+ */
+
+bool GetStatesDigitalInput(digital_input_t input);
+
+/**
+ * @brief Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
+ */
+
+int HasChangedDigitalInput(digital_input_t input);
+
+/**
+ * @brief Función encargada de detectar un flanco acendente
+ */
+
+bool HasActivatedDigitalInput(digital_input_t input);
+
+/**
+ * @brief Función encargada de detectar un flanco decendente 
+ */
+
+bool HasDeactivateDigitalInput(digital_input_t input);
 
 /* === End of documentation ==================================================================== */
 
