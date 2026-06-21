@@ -1,13 +1,26 @@
 /************************************************************************************************
-Copyright (c) 2026, Nahuel Blanco Suárez < nahuelbs95@gmail.com >. All rights
-reserved.
+Copyright (c) 2022-2023, Laboratorio de Microprocesadores
+Facultad de Ciencias Exactas y Tecnología, Universidad Nacional de Tucumán
+https://www.microprocesadores.unt.edu.ar/
 
-This software is proprietary and confidential. Unauthorized copying,
-distribution, modification, or publication of this file, via any medium, is
-strictly prohibited without the express written permission of the copyright
-owner.
+Copyright (c) 2022-2023, Esteban Volentini <evolentini@herrera.unt.edu.ar>
 
-SPDX-License-Identifier: LicenseRef-Proprietary
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+SPDX-License-Identifier: MIT
 *************************************************************************************************/
 
 /** \brief EDU-CIAA-NXP board sample application
@@ -23,9 +36,9 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #endif
 
 #include "board.h"
-#include "chip.h"
 #include "digital_input.h"
 #include "digital_output.h"
+#include "chip.h"
 #include <stdio.h>
 
 /* === Macros definitions ====================================================================== */
@@ -200,7 +213,6 @@ static void FlashLed(void) {
     static int divisor = 0;
     static rgb_color_t state = LED_BLUE_OFF;
 
-
     divisor++;
     if (divisor == 5) {
         divisor = 0;
@@ -208,29 +220,29 @@ static void FlashLed(void) {
 
         switch (state) {
         case LED_RED_ON:
-            ActivateDigitalOutput(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
+            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
             break;
         case LED_GREEN_ON:
-            ActivateDigitalOutput(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
+            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
             break;
         case LED_BLUE_ON:
-            ActivateDigitalOutput(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
+            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
             break;
         default:
-            ActivateDigitalOutput(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-            ActivateDigitalOutput(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
-            ActivateDigitalOutput(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
+            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
+            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
+            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
             break;
         }
     }
 }
 
 static void SwitchLed(void) {
-    if (GetStatesDigitalInput(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
-        ActivateDigitalOutput(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
+    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
     }
-    if (GetStatesDigitalInput(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0) {
-        ActivateDigitalOutput(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, false);
+    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0) {
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, false);
     }
 }
 
@@ -238,18 +250,18 @@ static void ToggleLed(void) {
     static bool last_state = false;
     bool current_state;
 
-    current_state = (GetStatesDigitalInput(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0);
+    current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0);
     if ((current_state) && (!last_state)) {
-        ToggleDigitalOutput(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT);
+        Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT);
     }
     last_state = current_state;
 }
 
 static void TestLed(void) {
-    if (GetStatesDigitalInput(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
-        ActivateDigitalOutput(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
+    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
     } else {
-        ActivateDigitalOutput(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
     }
 }
 

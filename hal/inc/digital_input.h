@@ -51,7 +51,7 @@ digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin);
  * @brief Función encargada de leer el estado actual de la terminal
  */
 
-bool GetStatesDigitalInput(digital_input_t input);
+bool GetStateDigitalInput(digital_input_t input);
 
 /**
  * @brief Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
