@@ -62,8 +62,6 @@ static digital_input_t ReserveDigitalInput(void) {
 
 /**
  * @brief Constructor, encargado de inicializar el objeto.
- * @param port puerto GPIO
- * @param pin pin dentro del puerto.
  */
 
 digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
@@ -93,7 +91,7 @@ bool GetStateDigitalInput(digital_input_t self) {
 
 int HasChangedDigitalInput(digital_input_t self) {     
   int state          = 0;
-  bool current_state = GetStatesDigitalInput(self);
+  bool current_state = GetStateDigitalInput(self);
   if (current_state && !self->last_state) {            // si el estado actual es verdadero (1) y el estado anterior es falso (0)
     state = ACTIVATE_EVENT;                            // hubo un evento de activacion
   } else if (!current_state && self->last_state) {     // estado actual es falso (0) y el estado anterior es verdadero (1)
@@ -115,7 +113,7 @@ bool HasActivatedDigitalInput(digital_input_t self) {
  * @brief Función encargada de detectar un flanco decendente 
  */
 
-bool HasDeactivateDigitalInput(digital_input_t self) {
+bool HasDeactivatedDigitalInput(digital_input_t self) {
   return HasChangedDigitalInput(self) == DEACTIVATE_EVENT;
 }
 

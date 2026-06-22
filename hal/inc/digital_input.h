@@ -69,7 +69,7 @@ bool HasActivatedDigitalInput(digital_input_t input);
  * @brief Función encargada de detectar un flanco decendente 
  */
 
-bool HasDeactivateDigitalInput(digital_input_t input);
+bool HasDeactivatedDigitalInput(digital_input_t input);
 
 /* === End of documentation ==================================================================== */
 

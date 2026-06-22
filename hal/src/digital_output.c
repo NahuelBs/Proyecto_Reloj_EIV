@@ -61,8 +61,6 @@ static digital_output_t ReserveDigitalOutput(void) {
 
 /**
  * @brief Constructor, encargado de inicializar el objeto.
- * @param port puerto GPIO
- * @param pin pin dentro del puerto.
  */
 
 digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin, bool inverted) {
