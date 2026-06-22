@@ -43,7 +43,7 @@ typedef struct digital_output_s *digital_output_t;
  * @param pin pin dentro del puerto.
  */
 
-digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin);
+digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin, bool inverted);
 
 /**
  * @brief Función encargada de activar la salida, estableciendola en estado alto 

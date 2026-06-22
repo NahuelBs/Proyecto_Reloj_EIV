@@ -1,27 +1,4 @@
-/************************************************************************************************
-Copyright (c) 2022-2023, Laboratorio de Microprocesadores
-Facultad de Ciencias Exactas y Tecnología, Universidad Nacional de Tucumán
-https://www.microprocesadores.unt.edu.ar/
 
-Copyright (c) 2022-2023, Esteban Volentini <evolentini@herrera.unt.edu.ar>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute,
-sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
-OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-SPDX-License-Identifier: MIT
-*************************************************************************************************/
 
 /** \brief EDU-CIAA-NXP board sample application
  **
@@ -176,37 +153,37 @@ digital_input_t TEC4;
 
 static void ConfigureLeds(void) {
     Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
-    RGB_R = CreateDigitalOutput(LED_R_GPIO, LED_R_BIT);
+    RGB_R = CreateDigitalOutput(LED_R_GPIO, LED_R_BIT, false);
     
     Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
-    RGB_G = CreateDigitalOutput(LED_G_GPIO, LED_G_BIT);
+    RGB_G = CreateDigitalOutput(LED_G_GPIO, LED_G_BIT, false);
 
     Chip_SCU_PinMuxSet(LED_B_PORT, LED_B_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_B_FUNC);
-    RGB_B = CreateDigitalOutput(LED_B_GPIO, LED_B_BIT);
+    RGB_B = CreateDigitalOutput(LED_B_GPIO, LED_B_BIT, false);
 
     /******************/
     Chip_SCU_PinMuxSet(LED_1_PORT, LED_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_1_FUNC);
-    LED1 = CreateDigitalOutput(LED_1_GPIO, LED_1_BIT);
+    LED1 = CreateDigitalOutput(LED_1_GPIO, LED_1_BIT, false);
 
     Chip_SCU_PinMuxSet(LED_2_PORT, LED_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_2_FUNC);
-    LED2 = CreateDigitalOutput(LED_2_GPIO, LED_2_BIT);
+    LED2 = CreateDigitalOutput(LED_2_GPIO, LED_2_BIT, false);
 
     Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
-    LED3 = CreateDigitalOutput(LED_3_GPIO, LED_3_BIT);
+    LED3 = CreateDigitalOutput(LED_3_GPIO, LED_3_BIT, false);
 }
 
 static void ConfigureKeys(void) {
     Chip_SCU_PinMuxSet(TEC_1_PORT, TEC_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_1_FUNC);
-    TEC1 = CreateDigitalInput(TEC_1_GPIO, TEC_1_BIT);
+    TEC1 = CreateDigitalInput(TEC_1_GPIO, TEC_1_BIT, true);
 
     Chip_SCU_PinMuxSet(TEC_2_PORT, TEC_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_2_FUNC);
-    TEC2 = CreateDigitalInput(TEC_2_GPIO, TEC_2_BIT);
+    TEC2 = CreateDigitalInput(TEC_2_GPIO, TEC_2_BIT, true);
 
     Chip_SCU_PinMuxSet(TEC_3_PORT, TEC_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_3_FUNC);
-    TEC3 = CreateDigitalInput(TEC_3_GPIO, TEC_3_BIT);
+    TEC3 = CreateDigitalInput(TEC_3_GPIO, TEC_3_BIT, true);
 
     Chip_SCU_PinMuxSet(TEC_4_PORT, TEC_4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_4_FUNC);
-    TEC4 = CreateDigitalInput(TEC_4_GPIO, TEC_4_BIT);
+    TEC4 = CreateDigitalInput(TEC_4_GPIO, TEC_4_BIT, true);
 }
 
 static void FlashLed(void) {
@@ -220,29 +197,29 @@ static void FlashLed(void) {
 
         switch (state) {
         case LED_RED_ON:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, true);
+            ActivateDigitalOutput(RGB_R);
             break;
         case LED_GREEN_ON:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, true);
+            ActivateDigitalOutput(RGB_G);
             break;
         case LED_BLUE_ON:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, true);
+            ActivateDigitalOutput(RGB_B);
             break;
         default:
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_R_GPIO, LED_R_BIT, false);
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_G_GPIO, LED_G_BIT, false);
-            Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_B_GPIO, LED_B_BIT, false);
+            DeactivateDigitalOutput(RGB_R);
+            DeactivateDigitalOutput(RGB_G);
+            DeactivateDigitalOutput(RGB_B);
             break;
         }
     }
 }
 
 static void SwitchLed(void) {
-    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_1_GPIO, TEC_1_BIT) == 0) {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, true);
+    if (GetStateDigitalInput(TEC1)) {
+        ActivateDigitalOutput(LED1);
     }
-    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_2_GPIO, TEC_2_BIT) == 0) {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_1_GPIO, LED_1_BIT, false);
+    if (GetStateDigitalInput(TEC2)) {
+        DeactivateDigitalOutput(LED1);
     }
 }
 
@@ -250,18 +227,18 @@ static void ToggleLed(void) {
     static bool last_state = false;
     bool current_state;
 
-    current_state = (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_3_GPIO, TEC_3_BIT) == 0);
+    current_state = GetStateDigitalInput(TEC3);
     if ((current_state) && (!last_state)) {
-        Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, LED_2_GPIO, LED_2_BIT);
+        ToggleDigitalOutput(LED2);
     }
     last_state = current_state;
 }
 
 static void TestLed(void) {
-    if (Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, TEC_4_GPIO, TEC_4_BIT) == 0) {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, true);
+    if (GetStateDigitalInput(TEC4)) {
+        ActivateDigitalOutput(LED3);
     } else {
-        Chip_GPIO_SetPinState(LPC_GPIO_PORT, LED_3_GPIO, LED_3_BIT, false);
+        DeactivateDigitalOutput(LED3);
     }
 }
 

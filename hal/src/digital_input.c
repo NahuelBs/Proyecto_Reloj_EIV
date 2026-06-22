@@ -30,7 +30,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 struct digital_input_s {
   uint8_t port;
   uint32_t pin;     
-  bool last_state;     
+  bool last_state;
+  bool inverted;     
   bool used;
 };
 
@@ -44,7 +45,7 @@ struct digital_input_s {
  */
 
 static digital_input_t ReserveDigitalInput(void) {
-  static struct digital_input_s memory_pool[10] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
+  static struct digital_input_s memory_pool[4] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
   digital_input_t slot                          = NULL;     //puntero de retorno inicializado en NULL para evitar valores basura 
 
   //se recorre el pool de memoria para buscar un lugar disponible
@@ -65,11 +66,12 @@ static digital_input_t ReserveDigitalInput(void) {
  * @param pin pin dentro del puerto.
  */
 
-digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin) {
+digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
   digital_input_t self = ReserveDigitalInput();
   if (self) {
     self->port     = port;
     self->pin      = pin;
+    self->inverted = inverted;
     //funcion encagada de definir el sentido de circulación de datos del pin (entrada o salida)
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, false);  // false -> entrada
   }
@@ -82,7 +84,7 @@ digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin) {
  */
 
 bool GetStateDigitalInput(digital_input_t self) {
-  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin);                                                                   
+  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin)!= self->inverted;  //ajusta el nivel lógico para las entradas activas en bajo.                                                                
 }
 
 /**

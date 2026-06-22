@@ -30,6 +30,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 struct digital_output_s {
   uint8_t port;
   uint32_t pin;
+  bool inverted;
   bool used;   // bandera para indicar si el slot del pool está asignado o libre
 };
 
@@ -43,12 +44,12 @@ struct digital_output_s {
  */
 
 static digital_output_t ReserveDigitalOutput(void) {
-  static struct digital_output_s memory_pool[4] = {0};     //arreglo estático que actúa como pool de memoria para los objetos 
+  static struct digital_output_s memory_pool[7] = {0};     //arreglo estático que actúa como pool de memoria para los objetos 
   digital_output_t slot                          = NULL;   //puntero de retorno inicializado en NULL para evitar valores basura 
 
   //se recorre el pool de memoria para buscar un lugar disponible
 
-  for (int i = 0; i < 4; i++) {                           
+  for (int i = 0; i < 7; i++) {                           
     if (!memory_pool[i].used) {                  //verifica si el slot actual esta libre
       slot                = &memory_pool[i];     //asigna la dirección del slot libre al puntero
       memory_pool[i].used = true;                //marca el slot como ocupado
@@ -64,7 +65,7 @@ static digital_output_t ReserveDigitalOutput(void) {
  * @param pin pin dentro del puerto.
  */
 
-digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin) {
+digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin, bool inverted) {
 
   digital_output_t self = ReserveDigitalOutput();   //reserva, si existe, un espacio disponible, un slot
 
@@ -73,6 +74,7 @@ digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin) {
   if (self) {                                       
     self->port     = port;
     self->pin      = pin;
+    self->inverted = inverted;
     //funcion encagada de definir el sentido de circulación de datos del pin (entrada o salida)
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, true);  // true -> salida
     DeactivateDigitalOutput(self);
@@ -86,7 +88,7 @@ digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin) {
 
 void ActivateDigitalOutput(digital_output_t self) {
   //funcion encargada de definir el nivel de voltaje inicial (alto o bajo)
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->port, true); //true -> high
+  Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, !self->inverted); //inverted se inicializ por defecto en false , true -> high
 }
 
 /**
@@ -95,7 +97,7 @@ void ActivateDigitalOutput(digital_output_t self) {
 
 void DeactivateDigitalOutput(digital_output_t self) {
   //funcion encargada de definir el nivel de voltaje inicial (alto o bajo)
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->port, false); //false -> low
+  Chip_GPIO_SetPinState(LPC_GPIO_PORT, self->port, self->pin, self->inverted); //inverted se inicializ por defecto en false , false -> low
 }
 
 /**

@@ -45,7 +45,7 @@ typedef struct digital_input_s *digital_input_t;
  * @param pin pin dentro del puerto.
  */
 
-digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin);
+digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted);
 
 /**
  * @brief Función encargada de leer el estado actual de la terminal
