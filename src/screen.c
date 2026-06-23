@@ -26,39 +26,55 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include <stdbool.h>
 #include <stddef.h>
 
+/* === Private Macros definitions ================================================================================== */
+
+#ifndef DISPLAY_MAX_DIGITS
+#define DISPLAY_MAX_DIGITS 8
+#endif
+
 /* === Private data type declarations ============================================================================== */
 
+/**
+ * @brief Descriptor interno de la pantalla multiplexada
+ */
+
 struct display_s {
-    uint8_t digits;
-    uint8_t active_digit;
-    uint8_t display_memory[8];
-    display_driver_t driver;
+    uint8_t digits;                             /**< Cantidad de dígitos de la pantalla */
+    uint8_t active_digit;                       /**< Índice del dígito activo en el barrido */
+    uint8_t flashing_from;                      /**< Primer dígito con parpadeo habilitado */
+    uint8_t flashing_to;                        /**< Último dígito con parpadeo habilitado */
+    uint16_t flashing_frecuency;                /**< Divisor de frecuencia para el parpadeo */
+    uint16_t flashing_count;                    /**< Contador de ciclos de refresco para parpadeo */
+    uint8_t display_memory[DISPLAY_MAX_DIGITS]; /**< Patrón de segmentos por dígito */
     bool used;
+    struct display_driver_s driver[1];          /**< Callbacks de acceso al hardware */
+};
+
+/* === Private function declarations ================================================================================ */
+
+static display_t DisplayAllocate(void);
+
+/* === Private variable definitions ================================================================================= */
+
+static const uint8_t IMAGES[] = {
+    SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_F,             /**< 0 */
+    SEGMENT_B | SEGMENT_C,                                                             /**< 1 */
+    SEGMENT_A | SEGMENT_B | SEGMENT_D | SEGMENT_E | SEGMENT_G,                         /**< 2 */
+    SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_G,                         /**< 3 */
+    SEGMENT_B | SEGMENT_C | SEGMENT_F | SEGMENT_G,                                     /**< 4 */
+    SEGMENT_A | SEGMENT_C | SEGMENT_D | SEGMENT_F | SEGMENT_G,                         /**< 5 */
+    SEGMENT_A | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_F | SEGMENT_G,             /**< 6 */
+    SEGMENT_A | SEGMENT_B | SEGMENT_C,                                                 /**< 7 */
+    SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_F | SEGMENT_G, /**< 8 */
+    SEGMENT_A | SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_F | SEGMENT_G,             /**< 9 */
 };
 
 /* === Private function implementation ============================================================================== */
 
-/**
- * @brief Reserva un bloque contiguo de memoria para N objetos homogéneos
- * del mismo tipo y tamaño (static pool).
- * @return digital_output_t puntero a un slot; retorna NULL si no 
- * existe espacio disponible.
- */
+static display_t DisplayAllocate(void) {
+    static struct display_s instances[1] = {0};
 
-static display_t DisplayReserve(void) {
-  static struct display_s memory_pool[4] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
-  display_t slot                          = NULL;    //puntero de retorno inicializado en NULL para evitar valores basura 
-
-  //se recorre el pool de memoria para buscar un lugar disponible
-
-  for (int i = 0; i < 4; i++) {                           
-    if (!memory_pool[i].used) {                  //verifica si el slot actual esta libre
-      slot                = &memory_pool[i];     //asigna la dirección del slot libre al puntero
-      memory_pool[i].used = true;                //marca el slot como ocupado
-      break;                                     //sale del bucle tras encontrar el primer slot libre
-    }
-  }
-  return slot;
+    return &instances[0];
 }
 
 /* === Public function implementation ============================================================================== */
@@ -67,37 +83,84 @@ static display_t DisplayReserve(void) {
  * @brief Constructor, encargado de inicializar el objeto.
  */
 
-display_t DisplayCreate(uint8_t digits, display_driver_t driver){
-  display_t self = DisplayReserve();
-  if (self) {
-    self->digits    = digits;
-  }
-  return self;
+display_t DisplayCreate(uint8_t digits, display_driver_t driver) {
+    display_t display = DisplayAllocate();
+
+    if (display) {
+        display->digits = digits;
+        display->active_digit = digits - 1;
+        display->flashing_count = 0;
+        display->flashing_from = 0;
+        display->flashing_to = 0;
+        display->flashing_frecuency = 0;
+        memcpy(display->driver, driver, sizeof(display->driver));
+        memset(display->display_memory, 0, sizeof(display->display_memory));
+        display->driver->UpdateSegments(0x00);
+    }
+
+    return display;
 }
 
 /**
  * @brief Escribe un número BCD en la memoria de la pantalla
  */
 
-void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size){
-
+void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size) {
+    memset(display->display_memory, 0, sizeof(display->display_memory));
+    for (int index = 0; index < size; index++) {
+        if (index >= display->digits) {
+            break;
+        }
+        display->display_memory[index] = IMAGES[number[index]];
+    }
 }
 
 /**
  * @brief Refresca un paso del barrido multiplexado
  */
 
-void DisplayRefresh(display_t display){
+void DisplayRefresh(display_t display) {
+    uint8_t segments;
 
+    display->driver->UpdateSegments(0x00);
+    display->active_digit = (display->active_digit + 1) % display->digits;
+
+    if (display->active_digit == 0) {
+        display->flashing_count++;
+        if (display->flashing_count >= display->flashing_frecuency) {
+            display->flashing_count = 0;
+        }
+    }
+
+    segments = display->display_memory[display->active_digit];
+    if (display->flashing_frecuency > 0) {
+        if (display->flashing_count >= display->flashing_frecuency / 2) {
+            if ((display->active_digit >= display->flashing_from) && (display->active_digit <= display->flashing_to)) {
+                segments = 0;
+            }
+        }
+    }
+
+    display->driver->UpdateSegments(segments);
+    display->driver->UpdateDigits(display->active_digit);
 }
 
+
+void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t frecuency) {
+    display->flashing_count = 0;
+    display->flashing_from = from;
+    display->flashing_to = to;
+    display->flashing_frecuency = frecuency;
+}
 
 /**
  * @brief Conmuta el punto decimal de un rango de dígitos
  */
 
-void DisplayToggleDots(display_t display, uint8_t from, uint8_t to){
-
+void DisplayToggleDots(display_t display, uint8_t from, uint8_t to) {
+    for (int index = from; index <= to; index++) {
+        display->display_memory[index] ^= SEGMENT_P;
+    }
 }
 
 /* === End of documentation ======================================================================================== */
