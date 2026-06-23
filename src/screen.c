@@ -22,17 +22,18 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 #include "digital_input.h"
 #include "chip.h"
+#include "screen.h"
 #include <stdbool.h>
 #include <stddef.h>
 
 /* === Private data type declarations ============================================================================== */
 
-struct digital_input_s {
-  uint8_t port;
-  uint32_t pin;     
-  bool last_state;
-  bool inverted;     
-  bool used;
+struct display_s {
+    uint8_t digits;
+    uint8_t active_digit;
+    uint8_t display_memory[8];
+    display_driver_t driver;
+    bool used;
 };
 
 /* === Private function implementation ============================================================================== */
@@ -44,9 +45,9 @@ struct digital_input_s {
  * existe espacio disponible.
  */
 
-static digital_input_t ReserveDigitalInput(void) {
-  static struct digital_input_s memory_pool[4] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
-  digital_input_t slot                          = NULL;     //puntero de retorno inicializado en NULL para evitar valores basura 
+static display_t DisplayReserve(void) {
+  static struct display_s memory_pool[4] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
+  display_t slot                          = NULL;    //puntero de retorno inicializado en NULL para evitar valores basura 
 
   //se recorre el pool de memoria para buscar un lugar disponible
 
@@ -66,57 +67,37 @@ static digital_input_t ReserveDigitalInput(void) {
  * @brief Constructor, encargado de inicializar el objeto.
  */
 
-digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
-  digital_input_t self = ReserveDigitalInput();
+display_t DisplayCreate(uint8_t digits, display_driver_t driver){
+  display_t self = DisplayReserve();
   if (self) {
-    self->port     = port;
-    self->pin      = pin;
-    self->inverted = inverted;
-    //funcion encagada de definir el sentido de circulación de datos del pin (entrada o salida)
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, false);  // false -> entrada
+    self->digits    = digits;
   }
   return self;
 }
 
-
 /**
- * @brief Función encargada de leer el estado actual de la terminal
+ * @brief Escribe un número BCD en la memoria de la pantalla
  */
 
-bool GetStateDigitalInput(digital_input_t self) {
-  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin)!= self->inverted;  //ajusta el nivel lógico para las entradas activas en bajo.                                                                
+void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size){
+
 }
 
 /**
- * @brief Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
+ * @brief Refresca un paso del barrido multiplexado
  */
 
-int HasChangedDigitalInput(digital_input_t self) {     
-  int state          = 0;
-  bool current_state = GetStateDigitalInput(self);
-  if (current_state && !self->last_state) {            // si el estado actual es verdadero (1) y el estado anterior es falso (0)
-    state = ACTIVATE_EVENT;                            // hubo un evento de activacion
-  } else if (!current_state && self->last_state) {     // estado actual es falso (0) y el estado anterior es verdadero (1)
-    state = DEACTIVATE_EVENT;                          // hubo un evento de desactivacion
-  }
-  self->last_state = current_state;
-  return state;
+void DisplayRefresh(display_t display){
+
 }
 
-/**
- * @brief Función encargada de detectar un flanco acendente
- */
-
-bool HasActivatedDigitalInput(digital_input_t self) {
-  return HasChangedDigitalInput(self) == ACTIVATE_EVENT;
-}
 
 /**
- * @brief Función encargada de detectar un flanco decendente 
+ * @brief Conmuta el punto decimal de un rango de dígitos
  */
 
-bool HasDeactivatedDigitalInput(digital_input_t self) {
-  return HasChangedDigitalInput(self) == DEACTIVATE_EVENT;
+void DisplayToggleDots(display_t display, uint8_t from, uint8_t to){
+
 }
 
 /* === End of documentation ======================================================================================== */

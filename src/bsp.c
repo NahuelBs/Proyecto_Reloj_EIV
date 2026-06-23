@@ -61,81 +61,88 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #define LED_3_GPIO 1
 #define LED_3_BIT  12
 
-#define TEC_1_PORT 1
-#define TEC_1_PIN  0
-#define TEC_1_FUNC SCU_MODE_FUNC0
-#define TEC_1_GPIO 0
-#define TEC_1_BIT  4
+#define TEC_1_PORT 6
+#define TEC_1_PIN  7
+#define TEC_1_FUNC SCU_MODE_FUNC4
+#define TEC_1_GPIO 5
+#define TEC_1_BIT  15
 
-#define TEC_2_PORT 1
-#define TEC_2_PIN  1
-#define TEC_2_FUNC SCU_MODE_FUNC0
-#define TEC_2_GPIO 0
-#define TEC_2_BIT  8
+#define TEC_2_PORT 4
+#define TEC_2_PIN  10
+#define TEC_2_FUNC SCU_MODE_FUNC4
+#define TEC_2_GPIO 5
+#define TEC_2_BIT  14
 
-#define TEC_3_PORT 1
-#define TEC_3_PIN  2
-#define TEC_3_FUNC SCU_MODE_FUNC0
-#define TEC_3_GPIO 0
-#define TEC_3_BIT  9
+#define TEC_3_PORT 4
+#define TEC_3_PIN  9
+#define TEC_3_FUNC SCU_MODE_FUNC4
+#define TEC_3_GPIO 5
+#define TEC_3_BIT  13
 
-#define TEC_4_PORT 1
-#define TEC_4_PIN  6
-#define TEC_4_FUNC SCU_MODE_FUNC0
-#define TEC_4_GPIO 1
-#define TEC_4_BIT  9
+#define TEC_4_PORT 4
+#define TEC_4_PIN  8
+#define TEC_4_FUNC SCU_MODE_FUNC4
+#define TEC_4_GPIO 5
+#define TEC_4_BIT  12
 
 /* === Public data type declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
 
-/**
- * @brief Function to configure pins and gpio bits used by board leds
- */
-static void ConfigureLeds(struct board_s * self);
-
-/**
- * @brief Function to configure pins and gpio bits used by board keys
- */
-static void ConfigureKeys(struct board_s * self);
-
 /* === Public function declarations ============================================================ */
 
 /* === Private function implementation ========================================================= */
 
-static void ConfigureLeds(struct board_s * self) {
-    Chip_SCU_PinMuxSet(LED_R_PORT, LED_R_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_R_FUNC);
-    self->RGB_R = CreateDigitalOutput(LED_R_GPIO, LED_R_BIT, false);
-    
-    Chip_SCU_PinMuxSet(LED_G_PORT, LED_G_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_G_FUNC);
-    self->RGB_G = CreateDigitalOutput(LED_G_GPIO, LED_G_BIT, false);
+/**
+ * @brief Función encargada de inicializar los digitos del display
+ */
 
-    Chip_SCU_PinMuxSet(LED_B_PORT, LED_B_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_B_FUNC);
-    self->RGB_B = CreateDigitalOutput(LED_B_GPIO, LED_B_BIT, false);
+static void DigitsInit(struct board_s * self){
 
-    /******************/
-    Chip_SCU_PinMuxSet(LED_1_PORT, LED_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_1_FUNC);
-    self->LED1 = CreateDigitalOutput(LED_1_GPIO, LED_1_BIT, false);
-
-    Chip_SCU_PinMuxSet(LED_2_PORT, LED_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_2_FUNC);
-    self->LED2 = CreateDigitalOutput(LED_2_GPIO, LED_2_BIT, false);
-
-    Chip_SCU_PinMuxSet(LED_3_PORT, LED_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | LED_3_FUNC);
-    self->LED3 = CreateDigitalOutput(LED_3_GPIO, LED_3_BIT, false);
 }
 
-static void ConfigureKeys(struct board_s * self) {
+/**
+ * @brief Función encargada de inicializar los segmentos del display
+ */
+
+static void SegmentsInit(struct board_s * self){
+
+}
+
+/**
+ * @brief Función encargada de inicializar el buzzer
+ */
+
+static void BuzzerInit(struct board_s * self){
+
+}
+
+/**
+ * @brief Función encargada de inicializar las teclas
+ */
+
+static void KeyboardInit(struct board_s * self){
+
     Chip_SCU_PinMuxSet(TEC_1_PORT, TEC_1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_1_FUNC);
-    self->TEC1 = CreateDigitalInput(TEC_1_GPIO, TEC_1_BIT, true);
+    self->TEC1 = CreateDigitalInput(TEC_1_GPIO, TEC_1_BIT, false);
 
     Chip_SCU_PinMuxSet(TEC_2_PORT, TEC_2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_2_FUNC);
-    self->TEC2 = CreateDigitalInput(TEC_2_GPIO, TEC_2_BIT, true);
+    self->TEC2 = CreateDigitalInput(TEC_2_GPIO, TEC_2_BIT, false);
 
     Chip_SCU_PinMuxSet(TEC_3_PORT, TEC_3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_3_FUNC);
-    self->TEC3 = CreateDigitalInput(TEC_3_GPIO, TEC_3_BIT, true);
+    self->TEC3 = CreateDigitalInput(TEC_3_GPIO, TEC_3_BIT, false);
 
     Chip_SCU_PinMuxSet(TEC_4_PORT, TEC_4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | TEC_4_FUNC);
-    self->TEC4 = CreateDigitalInput(TEC_4_GPIO, TEC_4_BIT, true);
+    self->TEC4 = CreateDigitalInput(TEC_4_GPIO, TEC_4_BIT, false);
+
+}
+
+static void UpdateDigits(){
+
+}
+
+static void UpdateSegments(){
+    
 }
 
 /* === Public function implementation ========================================================== */

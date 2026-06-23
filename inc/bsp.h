@@ -24,6 +24,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #define BSP_H
 #include "digital_input.h"
 #include "digital_output.h"
+#include "screen.h"
 
 /* === Header C++ ============================================================================== */
 
@@ -41,17 +42,15 @@ extern "C" {
  */
 
 typedef struct board_s {
-    digital_output_t LED1;  /**< LED 1 (Rojo)*/
-    digital_output_t LED2;  /**< LED 2 (Amarillo)*/
-    digital_output_t LED3;  /**< LED 3 (Verde)*/
-    digital_output_t RGB_R; /**< LED RGB - Canal Rojo */
-    digital_output_t RGB_G; /**< LED RGB - Canal Verde */
-    digital_output_t RGB_B; /**< LED RGB - Canal Azul */
-    digital_input_t TEC1;   /**< Pulsador TEC 1 */
-    digital_input_t TEC2;   /**< Pulsador TEC 2 */
-    digital_input_t TEC3;   /**< Pulsador TEC 3 */
-    digital_input_t TEC4;   /**< Pulsador TEC 4 */
-} const * const board_t; // estructura constante para que no se modifiquen sus atributos, puntero constante para que no se reasigne a otra placa
+    digital_output_t BUZZER;  /**< Salida de zumbador*/
+    digital_input_t TEC1;   /**< Pulsador KEY 4 */
+    digital_input_t TEC2;   /**< Pulsador KEY 3 */
+    digital_input_t TEC3;   /**< Pulsador KEY 2 */
+    digital_input_t TEC4;   /**< Pulsador KEY 1 */
+    digital_input_t ACEPTAR;   /**< Pulsador ACEPTAR */
+    digital_input_t CANCELAR;   /**< Pulsador CANCELAR */
+    display_t DISPLAY;          /**< Pantalla multiplexada 7 segmentos */
+} const * board_t; 
 
 /* === Private function declarations =========================================================== */
 

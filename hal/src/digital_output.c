@@ -34,7 +34,7 @@ struct digital_output_s {
   bool used;   // bandera para indicar si el slot del pool está asignado o libre
 };
 
-/* === Public function implementation ============================================================================== */
+/* === Private function implementation ============================================================================== */
 
 /**
  * @brief Reserva un bloque contiguo de memoria para N objetos homogéneos
@@ -58,6 +58,8 @@ static digital_output_t ReserveDigitalOutput(void) {
   }
   return slot;
 }
+
+/* === Public function implementation ============================================================================== */
 
 /**
  * @brief Constructor, encargado de inicializar el objeto.
