@@ -21,10 +21,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #error "This program can only be compiled for the EDU-CIAA-NXP board"
 #endif
 
-#include "digital_input.h"
-#include "digital_output.h"
 #include "bsp.h"
-#include "board.h"
 #include <stdio.h>
 
 /* === Macros definitions ====================================================================== */
