@@ -9,15 +9,13 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
+/** * @file digital_input.c
+ * @brief Implementación de la abstracción para entradas digitales.
+ */
 
-/** \brief Implementación de una abstracción orientada a objetos para entradas digitales.
- **
- **
- ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
- ** \brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
- * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- ** @{ */
-
+ /** * @addtogroup LAB4
+ * @{ 
+ */
 /* === Headers files inclusions ==================================================================================== */
 
 #include "digital_input.h"
@@ -38,9 +36,9 @@ struct digital_input_s {
 /* === Private function implementation ============================================================================== */
 
 /**
- * @brief Reserva un bloque contiguo de memoria para N objetos homogéneos
+ * Reserva un bloque contiguo de memoria para N objetos homogéneos
  * del mismo tipo y tamaño (static pool).
- * @return digital_output_t puntero a un slot; retorna NULL si no 
+ * digital_output_t puntero a un slot; retorna NULL si no 
  * existe espacio disponible.
  */
 
@@ -63,7 +61,7 @@ static digital_input_t ReserveDigitalInput(void) {
 /* === Public function implementation ============================================================================== */
 
 /**
- * @brief Constructor, encargado de inicializar el objeto.
+ * Constructor, encargado de inicializar el objeto.
  */
 
 digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
@@ -80,7 +78,7 @@ digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
 
 
 /**
- * @brief Función encargada de leer el estado actual de la terminal
+ * Función encargada de leer el estado actual de la terminal
  */
 
 bool GetStateDigitalInput(digital_input_t self) {
@@ -88,7 +86,7 @@ bool GetStateDigitalInput(digital_input_t self) {
 }
 
 /**
- * @brief Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
+ * Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
  */
 
 int HasChangedDigitalInput(digital_input_t self) {     
@@ -104,7 +102,7 @@ int HasChangedDigitalInput(digital_input_t self) {
 }
 
 /**
- * @brief Función encargada de detectar un flanco acendente
+ * Función encargada de detectar un flanco acendente
  */
 
 bool HasActivatedDigitalInput(digital_input_t self) {
@@ -112,7 +110,7 @@ bool HasActivatedDigitalInput(digital_input_t self) {
 }
 
 /**
- * @brief Función encargada de detectar un flanco decendente 
+ * Función encargada de detectar un flanco decendente 
  */
 
 bool HasDeactivatedDigitalInput(digital_input_t self) {

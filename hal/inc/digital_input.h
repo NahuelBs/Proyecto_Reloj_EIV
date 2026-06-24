@@ -9,15 +9,15 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
+/** * @file digital_input.h
+ * @brief Interfaz pública para el manejo de entradas digitales.
+ */
 
-/** \brief Implementación de una abstracción orientada a objetos para entradas digitales.
- **
- **
- ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
- ** \brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
+/** * @addtogroup LAB4 LAB4 - Abstracción de Hardware
+ * @brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
  * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- ** @{ */
-
+ * @{ 
+ */
 /* === Headers files inclusions =============================================================== */
 
 #ifndef DIGITAL_INPUT_H

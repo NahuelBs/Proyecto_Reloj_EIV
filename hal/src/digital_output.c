@@ -9,15 +9,13 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
+/** * @file digital_output.c
+ * @brief Implementación de la abstracción para salidas digitales.
+ */
 
-/** \brief Implementación de una abstracción orientada a objetos para salidas digitales.
- **
- **
- ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
- ** \brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
- * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- ** @{ */
-
+ /** * @addtogroup LAB4
+ * @{ 
+ */
 /* === Headers files inclusions ==================================================================================== */
 
 #include "digital_output.h"
@@ -37,9 +35,9 @@ struct digital_output_s {
 /* === Private function implementation ============================================================================== */
 
 /**
- * @brief Reserva un bloque contiguo de memoria para N objetos homogéneos
+ * Reserva un bloque contiguo de memoria para N objetos homogéneos
  * del mismo tipo y tamaño (static pool).
- * @return digital_output_t puntero a un slot; retorna NULL si no 
+ * digital_output_t puntero a un slot; retorna NULL si no 
  * existe espacio disponible.
  */
 
@@ -62,7 +60,7 @@ static digital_output_t ReserveDigitalOutput(void) {
 /* === Public function implementation ============================================================================== */
 
 /**
- * @brief Constructor, encargado de inicializar el objeto.
+ * Constructor, encargado de inicializar el objeto.
  */
 
 digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin, bool inverted) {
@@ -83,7 +81,7 @@ digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin, bool inverted) 
 }
 
 /**
- * @brief Función encargada de activar la salida, estableciendola en estado alto 
+ * Función encargada de activar la salida, estableciendola en estado alto 
  */
 
 void ActivateDigitalOutput(digital_output_t self) {
@@ -92,7 +90,7 @@ void ActivateDigitalOutput(digital_output_t self) {
 }
 
 /**
- * @brief Función encargada de desactivar la salida, estableciendola en estado bajo 
+ * Función encargada de desactivar la salida, estableciendola en estado bajo 
  */
 
 void DeactivateDigitalOutput(digital_output_t self) {
@@ -101,7 +99,7 @@ void DeactivateDigitalOutput(digital_output_t self) {
 }
 
 /**
- * @brief Función encargada de invertir el estado actual, '1' <-> '0' 
+ * Función encargada de invertir el estado actual, '1' <-> '0' 
  */
 
 void ToggleDigitalOutput(digital_output_t self) {

@@ -9,15 +9,15 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
+/** * @file digital_output.h
+ * @brief Interfaz pública para el manejo de salidas digitales.
+ */
 
-/** \brief Interfaz pública para el manejo de salidas digitales
- **
- **
- ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
- ** \brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
+/** * @addtogroup LAB4 LAB4 - Abstracción de Hardware
+ * @brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
  * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- ** @{ */
-
+ * @{ 
+ */
 /* === Headers files inclusions =============================================================== */
 
 #ifndef DIGITAL_OUTPUT_H

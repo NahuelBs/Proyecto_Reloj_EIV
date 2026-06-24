@@ -9,13 +9,13 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
-/** @file bsp.c
- ** \brief BSP (Board Support Package)
- **
- ** \addtogroup LAB6 LAB6 - Implementación del BSP
- ** @brief Implementación de la abstracción de hardware de la placa con poncho
- **@{
+/** * @file bsp.c
+ * @brief Implementación del BSP (Board Support Package).
+ */
 
+/** * @addtogroup LAB6
+ * @{ 
+ */
 /* === Headers files inclusions =================================================================== */
 
 #include "bsp.h"
@@ -37,15 +37,12 @@ static void BuzzerInit(void);
 static void KeysInit(void);
 
 /**
- * @brief Actualiza los segmentos encendidos en el hardware de la pantalla
- * * @param segments Máscara de segmentos activos; @c 0x00 apaga segmentos y dígitos
+ * Función encargada de cambiar el estado de cada segmento según el número a mostrar
  */
 static void UpdateSegments(uint8_t segments);
 
 /**
- * @brief Selecciona el dígito activo en el hardware de la pantalla
- * * Los dígitos se numeran de derecha a izquierda comenzando en cero.
- * * @param digit Índice del dígito a encender
+ * Función encargada de habilitar el dígito correspondiente
  */
 static void UpdateDigits(uint8_t digit);
 
@@ -58,7 +55,7 @@ static struct board_s board = {0};
 /* === Private function implementation ========================================================= */
 
 /**
- * @brief Función encargada de inicializar los digitos del display
+ * Función encargada de inicializar los digitos del display
  */
 
 static void DigitsInit(void) {
@@ -80,7 +77,7 @@ static void DigitsInit(void) {
 }
 
 /**
- * @brief Función encargada de inicializar los segmentos del display
+ * Función encargada de inicializar los segmentos del display
  */
 
 static void SegmentsInit(void) {
@@ -118,7 +115,7 @@ static void SegmentsInit(void) {
 }
 
 /**
- * @brief Función encargada de inicializar el buzzer
+ * Función encargada de inicializar el buzzer
  */
 
 static void BuzzerInit(void) {
@@ -128,7 +125,7 @@ static void BuzzerInit(void) {
 }
 
 /**
- * @brief Función encargada de inicializar las teclas
+ * Función encargada de inicializar las teclas
  */
 
 static void KeysInit(void) {
@@ -151,11 +148,10 @@ static void KeysInit(void) {
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_F4_GPIO, KEY_F4_BIT, false);
 }
 
-static void UpdateDigits(uint8_t digit) {
-    Chip_GPIO_SetValue(LPC_GPIO_PORT, DIGITS_GPIO, (1 << (3 - digit)) & DIGITS_MASK);
-}
-
-static void UpdateSegments(uint8_t segments) {
+/**
+ * Función encargada de cambiar el estado de cada segmento según el número a mostrar
+ */
+static void UpdateSegments(uint8_t segments) { 
     if (segments == 0x00) {
         Chip_GPIO_ClearValue(LPC_GPIO_PORT, DIGITS_GPIO, DIGITS_MASK);
         Chip_GPIO_ClearValue(LPC_GPIO_PORT, SEGMENTS_GPIO, SEGMENTS_MASK);
@@ -164,6 +160,13 @@ static void UpdateSegments(uint8_t segments) {
         Chip_GPIO_SetValue(LPC_GPIO_PORT, SEGMENTS_GPIO, segments & SEGMENTS_MASK);
         Chip_GPIO_SetPinState(LPC_GPIO_PORT, SEGMENT_P_GPIO, SEGMENT_P_BIT, (segments & SEGMENT_P));
     }
+}
+
+/**
+ * Función encargada de habilitar el dígito correspondiente
+ */
+static void UpdateDigits(uint8_t digit) {
+    Chip_GPIO_SetValue(LPC_GPIO_PORT, DIGITS_GPIO, (1 << (3 - digit)) & DIGITS_MASK);
 }
 
 /* === Public function implementation ========================================================== */
@@ -175,7 +178,7 @@ board_t BoardCreate(void) {
     BuzzerInit();
     KeysInit();
 
-    board.display = DisplayCreate(4, &(struct display_driver_s){
+    board.DISPLAY = DisplayCreate(4, &(struct display_driver_s){  //4 display por placa 
         .UpdateDigits = UpdateDigits,
         .UpdateSegments = UpdateSegments,
     });

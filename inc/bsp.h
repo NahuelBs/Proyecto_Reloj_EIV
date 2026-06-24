@@ -9,15 +9,16 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
+/** * @file bsp.h
+ * @brief Interfaz del BSP (Board Support Package).
+ */
 
-/** \brief BSP (Board Support Package)
- **
- ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
- ** \brief Módulo encargado de acoplar los objetos genéricos de la HAL con el 
- ** hardware específico de la placa de desarrollo EDU-CIAA-NXP. Oculta la 
- ** asignación física de puertos, pines y lógicas eléctricas de la aplicación.
- ** @{ */
-
+/** * @addtogroup LAB6 LAB6 - Abstracción de Hardware
+ * @brief Módulo encargado de acoplar los objetos genéricos de la HAL con el 
+ * hardware específico de la placa de desarrollo EDU-CIAA-NXP y poncho. Oculta la 
+ * asignación física de puertos, pines y lógicas eléctricas de la aplicación.
+ * @{ 
+ */
 /* === Headers files inclusions ================================================================ */
 
 #ifndef BSP_H
@@ -42,12 +43,12 @@ extern "C" {
  */
 
 typedef struct board_s {
-    digital_output_t BUZZER;  /**< Salida de zumbador*/
-    digital_input_t TEC1;   /**< Pulsador KEY 4 */
-    digital_input_t TEC2;   /**< Pulsador KEY 3 */
-    digital_input_t TEC3;   /**< Pulsador KEY 2 */
-    digital_input_t TEC4;   /**< Pulsador KEY 1 */
-    digital_input_t ACEPTAR;   /**< Pulsador ACEPTAR */
+    digital_output_t BUZZER;    /**< Salida de zumbador*/
+    digital_input_t TEC1;       /**< Pulsador KEY 4 */
+    digital_input_t TEC2;       /**< Pulsador KEY 3 */
+    digital_input_t TEC3;       /**< Pulsador KEY 2 */
+    digital_input_t TEC4;       /**< Pulsador KEY 1 */
+    digital_input_t ACEPTAR;    /**< Pulsador ACEPTAR */
     digital_input_t CANCELAR;   /**< Pulsador CANCELAR */
     display_t DISPLAY;          /**< Pantalla multiplexada 7 segmentos */
 } const * board_t; 
@@ -57,7 +58,7 @@ typedef struct board_s {
 /* === Public function declarations ============================================================ */
 
 /**
- * @brief Funcion encrgada de configurar los perifericos de la placa.
+ * @brief Funcion encargada de configurar los perifericos de la placa.
  */
 
 board_t BoardCreate(void);
