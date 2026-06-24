@@ -120,8 +120,7 @@ static void SegmentsInit(void) {
 
 static void BuzzerInit(void) {
     Chip_SCU_PinMuxSet(BUZZER_PORT, BUZZER_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | BUZZER_FUNC);
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, BUZZER_GPIO, BUZZER_BIT, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, BUZZER_GPIO, BUZZER_BIT, true);
+    board.BUZZER = CreateDigitalOutput(BUZZER_GPIO, BUZZER_BIT, false);
 }
 
 /**
@@ -130,22 +129,22 @@ static void BuzzerInit(void) {
 
 static void KeysInit(void) {
     Chip_SCU_PinMuxSet(KEY_ACCEPT_PORT, KEY_ACCEPT_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_ACCEPT_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_ACCEPT_GPIO, KEY_ACCEPT_BIT, false);
+    board.ACEPTAR = CreateDigitalInput(KEY_ACCEPT_GPIO, KEY_ACCEPT_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_CANCEL_PORT, KEY_CANCEL_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_CANCEL_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_CANCEL_GPIO, KEY_CANCEL_BIT, false);
+    board.CANCELAR = CreateDigitalInput(KEY_CANCEL_GPIO, KEY_CANCEL_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F1_PORT, KEY_F1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F1_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_F1_GPIO, KEY_F1_BIT, false);
+    board.TEC1 = CreateDigitalInput(KEY_F1_GPIO, KEY_F1_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F2_PORT, KEY_F2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F2_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_F2_GPIO, KEY_F2_BIT, false);
+    board.TEC2 = CreateDigitalInput(KEY_F2_GPIO, KEY_F2_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F3_PORT, KEY_F3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F3_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_F3_GPIO, KEY_F3_BIT, false);
+    board.TEC3 = CreateDigitalInput(KEY_F3_GPIO, KEY_F3_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F4_PORT, KEY_F4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F4_FUNC);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, KEY_F4_GPIO, KEY_F4_BIT, false);
+    board.TEC4 = CreateDigitalInput(KEY_F4_GPIO, KEY_F4_BIT, false);
 }
 
 /**
@@ -184,10 +183,6 @@ board_t BoardCreate(void) {
     });
 
     return &board;
-}
-
-void SisTick_Init(uint16_t ticks) {
-    __asm volatile("cpsid i");
 }
 
 /* === End of documentation ==================================================================== */

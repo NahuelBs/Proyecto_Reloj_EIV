@@ -17,7 +17,16 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 SPDX-License-Identifier: MIT
 *********************************************************************************************************************/
+/** @file screen.h
+ * @brief Controlador portable de pantalla multiplexada de 7 segmentos.
+ */
 
+/** @addtogroup LAB6 LAB6 - Board Support Package y Display
+ * @brief Extensión de la BSP para soporte de display de 7 segmentos,
+ * teclas y zumbador, orientada a la implementación del reloj despertador.
+ * @{
+ */
+/* === Headers files inclusions =============================================================== */
 #ifndef SCREEN_H_
 #define SCREEN_H_
 

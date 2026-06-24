@@ -9,19 +9,15 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
+/** * @file screen.c
+ * @brief Implementación del controlador portable de pantalla multiplexada de 7 segmentos.
+ */
 
-/** \brief Implementación de una abstracción orientada a objetos para entradas digitales.
- **
- **
- ** \addtogroup LAB4 LAB4 - Abstracción de Hardware
- ** \brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
- * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- ** @{ */
-
+ /** * @addtogroup LAB6
+ * @{ 
+ */
 /* === Headers files inclusions ==================================================================================== */
 
-#include "digital_input.h"
-#include "chip.h"
 #include "screen.h"
 #include <stdbool.h>
 #include <stddef.h>

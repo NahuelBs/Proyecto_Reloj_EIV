@@ -43,12 +43,12 @@ struct digital_input_s {
  */
 
 static digital_input_t ReserveDigitalInput(void) {
-  static struct digital_input_s memory_pool[4] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
+  static struct digital_input_s memory_pool[6] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
   digital_input_t slot                          = NULL;     //puntero de retorno inicializado en NULL para evitar valores basura 
 
   //se recorre el pool de memoria para buscar un lugar disponible
 
-  for (int i = 0; i < 4; i++) {                           
+  for (int i = 0; i < 6; i++) {                           
     if (!memory_pool[i].used) {                  //verifica si el slot actual esta libre
       slot                = &memory_pool[i];     //asigna la dirección del slot libre al puntero
       memory_pool[i].used = true;                //marca el slot como ocupado
