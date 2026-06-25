@@ -95,6 +95,22 @@ bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
 
 void NewTickReloj(clock_t clock);
 
+/**
+ * @brief Configura la hora de la alarma.
+ * @param[in] clock Puntero a la instancia del reloj.
+ * @param[in] alarm_time Arreglo de 6 bytes con la hora de la alarma en BCD.
+ */
+
+void SetupAlarmReloj(clock_t clock, const hora_t alarm);
+
+/**
+ * @brief Obtiene la hora configurada en la alarma.
+ * @param[in] clock Puntero a la instancia del reloj.
+ * @param[out] alarm_time Arreglo de 6 bytes donde se copiará la hora de la alarma.
+ */
+
+void GetAlarmReloj(clock_t clock, hora_t alarm);
+
 /* === Private function implementation ========================================================= */
 
 /* === Public function implementation ========================================================== */

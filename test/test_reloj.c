@@ -45,7 +45,7 @@ static const hora_t INITIAL_TIME = {1, 2, 3, 4, 5, 6};
 #define TWENTY_FOUR_HOURS   (24 * ONE_HOUR)
 
 void SimulateClockTicks(clock_t reloj, unsigned int ticks){
-    for(int i = 0; i < ticks; i++){
+    for(unsigned int i = 0; i < ticks; i++){
         NewTickReloj(reloj);
     }
 }
@@ -176,4 +176,16 @@ void test_comprobar_las_0000_horas(void){
     SimulateClockTicks(reloj, TEN_HOURS);
     GetCurrentTimeReloj(reloj, hora_actual);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Fijar la hora de la alarma y consultarla.
+void test_fijar_hora_de_alarma(void){
+    clock_t reloj;
+    hora_t alarma_obtenida;
+    static const hora_t ALARM_TIME = {0, 6, 0, 0, 0, 0};
+
+    reloj = CreateReloj(1, NULL);
+    SetupAlarmReloj(reloj, ALARM_TIME);
+    GetAlarmReloj(reloj, alarma_obtenida);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(ALARM_TIME, alarma_obtenida, 6);
 }

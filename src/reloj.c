@@ -28,6 +28,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 struct clock_s{
     hora_t current_time;    /**< guarda la hora actual*/
+    hora_t alarm;           /**< guarda la hora en la que debe sonar la alarma */
     bool time_is_valid;     /**< guarda si la hora es valida o no*/
     int ticks_count;        /**< contador de flancos internos */
     int ticks_per_seconds   /**< flancos necesarios para avanzar*/ 
@@ -55,17 +56,13 @@ clock_t CreateReloj(unsigned int ticks_per_seconds, void * alarm_handler){
 }
 
 bool GetCurrentTimeReloj(clock_t self, hora_t current_time){
-    /*destino = current_time        (el array del que llama, afuera del reloj)
-      origen  = self->current_time  (el array interno del reloj)
-      copia: adentro del reloj  -->  afuera (hacia el usuario)*/
+    /*destino = current_time ; origen  = self->current_time*/  
     memcpy(current_time, self->current_time, sizeof(hora_t));
     return self->time_is_valid; 
 }
 
 bool SetupCurrentTimeReloj(clock_t self, const hora_t current_time){
-    /*destino = self->current_time  (el array interno del reloj)
-      origen  = current_time        (el array que pasó el usuario)
-      copia: afuera (desde el usuario)  -->  adentro del reloj*/
+    /*destino = self->current_time; origen  = current_time*/        
     memcpy(self->current_time, current_time, sizeof(hora_t));
     return self->time_is_valid = true;
 }
@@ -100,6 +97,16 @@ void NewTickReloj(clock_t self){
             } 
         }
     }
+}
+
+void SetupAlarmReloj(clock_t self, const hora_t alarm){
+    /*destino = self->alarm; origen  = alarm*/
+    memcpy(self->alarm, alarm, sizeof(hora_t));
+}
+
+void GetAlarmReloj(clock_t self, hora_t alarm){
+    /*destino = alarm; origen  = self->alarm*/
+    memcpy(alarm, self->alarm, sizeof(hora_t));
 }
 
 /* === End of documentation ==================================================================== */
