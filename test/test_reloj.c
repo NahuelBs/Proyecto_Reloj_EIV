@@ -37,7 +37,12 @@ static const hora_t INITIAL_TIME = {1, 2, 3, 4, 5, 6};
 
 #define TICK_PER_SECOND 3
 #define ONE_SECOND TICK_PER_SECOND
-#define TEN_SECONDS (10 * ONE_SECOND)
+#define TEN_SECONDS         (10 * ONE_SECOND)
+#define ONE_MINUTE          (60 * ONE_SECOND)
+#define TEN_MINUTES         (10 * ONE_MINUTE)
+#define ONE_HOUR            (60 * ONE_MINUTE)
+#define TEN_HOURS           (10 * ONE_HOUR)
+#define TWENTY_FOUR_HOURS   (24 * ONE_HOUR)
 
 void SimulateClockTicks(clock_t reloj, unsigned int ticks){
     for(int i = 0; i < ticks; i++){
@@ -77,6 +82,98 @@ void test_avanza_un_segundo(void){
     reloj = CreateReloj(TICK_PER_SECOND, NULL);
     (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
     SimulateClockTicks(reloj, ONE_SECOND);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza diez segundos
+void test_avanza_un_diez_segundos(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {1, 2, 3, 5, 0, 6};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, TEN_SECONDS);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza un minuto
+void test_avanza_un_minuto(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {1, 2, 3, 5, 5, 6};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, ONE_MINUTE);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza diez minuto
+void test_avanza_diez_minutos(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {1, 2, 4, 4, 5, 6};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, TEN_MINUTES);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza una hora
+void test_avanza_una_hora(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {1, 3, 3, 4, 5, 6};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, ONE_HOUR);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza diez hora
+void test_avanza_diez_horas(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {2, 2, 3, 4, 5, 6};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, TEN_HOURS);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza un dia completo
+void test_avanza_24_horas(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {1, 2, 3, 4, 5, 6};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, TWENTY_FOUR_HOURS);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+}
+
+//‣ Test para verificar el correcto funcionamiento al llegar a las 00:00 horas
+void test_comprobar_las_0000_horas(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t INITIAL_TIME_TEST = {1, 4, 0, 0, 0, 0};
+    static const hora_t EXPECTED_TIME     = {0, 0, 0, 0, 0, 0};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME_TEST);
+    SimulateClockTicks(reloj, TEN_HOURS);
     GetCurrentTimeReloj(reloj, hora_actual);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
