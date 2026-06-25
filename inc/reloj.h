@@ -84,6 +84,15 @@ bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
 
 bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
 
+/**
+ * @brief Notifica al reloj el paso de un flanco (tick).
+ * * Incrementa el contador interno de flancos. Al alcanzar la cantidad 
+ * configurada por segundo, procesa el avance del tiempo en formato BCD 
+ * resolviendo los desbordamientos de segundos, minutos y horas.
+ *
+ * @param[in] clock Puntero a la instancia del reloj.
+ */
+
 void NewTickReloj(clock_t clock);
 
 /* === Private function implementation ========================================================= */
