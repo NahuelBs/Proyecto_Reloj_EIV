@@ -1,3 +1,33 @@
+/************************************************************************************************
+Copyright (c) 2026, Nahuel Blanco Suárez <nahuelbs95@gmail.com>. All rights
+reserved.
+
+This software is proprietary and confidential. Unauthorized copying,
+distribution, modification, or publication of this file, via any medium, is
+strictly prohibited without the express written permission of the copyright
+owner.
+
+SPDX-License-Identifier: LicenseRef-Proprietary
+*************************************************************************************************/
+/** * @file test_reloj.c
+ * @brief Pruebas unitarias para el módulo de reloj.
+ */
+
+/** * @addtogroup LAB7 LAB7 - TDD - Test Driven Development
+ * @brief Pruebas automáticas utilizando el framework Unity para validar, el comportamiento correcto del reloj.
+ * @{
+ *
+*************************************************************************************************/
+
+/*  ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
+    ‣ Al ajustar la hora el reloj queda en hora y es válida.
+    ‣ Después de n ciclos de reloj la hora avanza un segundo, diez segundos, un minutos, diez minutos, una hora, diez horas y un día completo.
+    ‣ Fijar la hora de la alarma y consultarla.
+    ‣ Fijar la alarma y avanzar el reloj para que suene.
+    ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no suene.
+    ‣ Hacer sonar la alarma y posponerla.
+    ‣ Hacer sonar la alarma y cancelarla hasta el otro dia*/
+
 #include "unity.h"
 #include "reloj.h"
 
@@ -5,7 +35,17 @@
 static const hora_t DEFAULT_TIME = {0, 0, 0, 0, 0, 0};
 static const hora_t INITIAL_TIME = {1, 2, 3, 4, 5, 6};
 
-//Al inicializar el reloj está en 00:00 y con hora invalida
+#define TICK_PER_SECOND 3
+#define ONE_SECOND TICK_PER_SECOND
+#define TEN_SECONDS (10 * ONE_SECOND)
+
+void SimulateClockTicks(clock_t reloj, unsigned int ticks){
+    for(int i = 0; i < ticks; i++){
+        NewTickReloj(reloj);
+    }
+}
+
+//‣ Al inicializar el reloj está en 00:00 y con hora invalida.
 void test_reloj_inicia_invalido(void){
     clock_t reloj;
     hora_t hora_actual;
@@ -17,7 +57,7 @@ void test_reloj_inicia_invalido(void){
     TEST_ASSERT_EQUAL_UINT8_ARRAY(DEFAULT_TIME, hora_actual, 6);
 }
 
-//Al ajustar la hora el reloj queda en hora y es valida
+//‣ Al ajustar la hora el reloj queda en hora y es válida.
 void test_ajuste_de_hora(void){
     clock_t reloj;
     hora_t hora_actual = {1, 2, 3, 4, 5, 6};
@@ -26,4 +66,17 @@ void test_ajuste_de_hora(void){
     TEST_ASSERT_TRUE(SetupCurrentTimeReloj(reloj, INITIAL_TIME));
     TEST_ASSERT(GetCurrentTimeReloj(reloj, hora_actual));
     TEST_ASSERT_EQUAL_UINT8_ARRAY(INITIAL_TIME, hora_actual, 6);
+}
+
+//‣ Después de n ciclos de reloj la hora avanza un segundo
+void test_avanza_un_segundo(void){
+    clock_t reloj;
+    hora_t hora_actual;
+    static const hora_t EXPECTED_TIME = {1, 2, 3, 4, 5, 7};
+
+    reloj = CreateReloj(TICK_PER_SECOND, NULL);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SimulateClockTicks(reloj, ONE_SECOND);
+    GetCurrentTimeReloj(reloj, hora_actual);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }

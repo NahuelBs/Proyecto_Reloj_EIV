@@ -57,12 +57,16 @@ bool GetCurrentTimeReloj(clock_t self, hora_t current_time){
     return self->time_is_valid; 
 }
 
-bool SetupCurrentTimeReloj(clock_t self, hora_t current_time){
+bool SetupCurrentTimeReloj(clock_t self, const hora_t current_time){
     /*destino = self->current_time  (el array interno del reloj)
       origen  = current_time        (el array que pasó el usuario)
       copia: afuera (desde el usuario)  -->  adentro del reloj*/
     memcpy(self->current_time, current_time, sizeof(hora_t));
     return self->time_is_valid = true;
+}
+
+void NewTickReloj(clock_t self){
+    self->current_time[5] = 7;
 }
 
 /* === End of documentation ==================================================================== */

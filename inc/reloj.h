@@ -82,7 +82,9 @@ bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
  * @return false Si los datos de la hora son inválidos (por ejemplo, minutos mayores a 59).
  */
 
-bool SetupCurrentTimeReloj(clock_t clock, hora_t current_time);
+bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
+
+void NewTickReloj(clock_t clock);
 
 /* === Private function implementation ========================================================= */
 
