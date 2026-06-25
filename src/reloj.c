@@ -16,12 +16,20 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /** * @addtogroup LAB7
  * @{ 
  */
-/* === Headers files inclusions =================================================================== */
+/* === Headers files inclusions ================================================================ */
 
 #include "reloj.h"
 #include <string.h>
 
-/* === Private Macros definitions ==================================================================*/
+/* === Private Macros definitions ============================================================== */
+
+/* === Private data type declarations ========================================================== */
+
+struct clock_s{
+    hora_t current_time;    /**< guarda la hora actual*/
+    bool time_is_valid;     /**< guarda si la hora es valida o no*/
+};
+
 
 /* === Public data type declarations =========================================================== */
 
@@ -36,12 +44,25 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Public function implementation ========================================================== */
 
 clock_t CreateReloj(unsigned int ticks_per_seconds, void * alarm_handler){
-
+    static struct clock_s instance = {0}; //-> inicializa todos los atributos en cero, current_time = {0,0,..,0} y time_is_valid = false
+    clock_t self = &instance;
+    return self;
 }
 
-bool GetCurrentTimeReloj(clock_t clock, hora_t current_time){
-    memset(current_time, 0, sizeof(hora_t));
-    return false; //-> devuelve un false, ya que no se puede confirmar que 00:00:00 es la hora actual 
+bool GetCurrentTimeReloj(clock_t self, hora_t current_time){
+    /*destino = current_time        (el array del que llama, afuera del reloj)
+      origen  = self->current_time  (el array interno del reloj)
+      copia: adentro del reloj  -->  afuera (hacia el usuario)*/
+    memcpy(current_time, self->current_time, sizeof(hora_t));
+    return self->time_is_valid; 
+}
+
+bool SetupCurrentTimeReloj(clock_t self, hora_t current_time){
+    /*destino = self->current_time  (el array interno del reloj)
+      origen  = current_time        (el array que pasó el usuario)
+      copia: afuera (desde el usuario)  -->  adentro del reloj*/
+    memcpy(self->current_time, current_time, sizeof(hora_t));
+    return self->time_is_valid = true;
 }
 
 /* === End of documentation ==================================================================== */
