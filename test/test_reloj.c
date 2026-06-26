@@ -42,6 +42,7 @@ static bool alarma_sono = false;
 #define ONE_SECOND TICK_PER_SECOND
 #define TEN_SECONDS         (10 * ONE_SECOND)
 #define ONE_MINUTE          (60 * ONE_SECOND)
+#define FIVE_MINUTE         (5  * ONE_MINUTE)
 #define TEN_MINUTES         (10 * ONE_MINUTE)
 #define ONE_HOUR            (60 * ONE_MINUTE)
 #define TEN_HOURS           (10 * ONE_HOUR)
@@ -228,12 +229,39 @@ void test_suena_alarma(void){
     TEST_ASSERT_TRUE(alarma_sono);
 }
 
-/* //‣ Hacer sonar la alarma y posponerla por una cantidad arbitraria de minutos.
+//‣ Hacer sonar la alarma y posponerla por una cantidad arbitraria de minutos.
 void test_posponer_alarma(void){
+   clock_t reloj;
+    static const hora_t INITIAL_TIME  = {0, 5, 0, 0, 0, 0};
+    static const hora_t ALARM_TIME    = {0, 6, 0, 0, 0, 0};
+    static const hora_t SNOOZED_TIME  = {0, 6, 0, 5, 0, 0};  
+
+    reloj = CreateReloj(TICK_PER_SECOND, BuzzerOn);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SetupAlarmReloj(reloj, ALARM_TIME);
+    SimulateClockTicks(reloj, ONE_HOUR);         
+    TEST_ASSERT_TRUE(alarma_sono);
+
+    alarma_sono = false;
+    SetupAlarmReloj(reloj, SNOOZED_TIME);        
+    SimulateClockTicks(reloj, FIVE_MINUTE);     
+    TEST_ASSERT_TRUE(alarma_sono);                          
+}
+
+//‣ Hacer sonar la alarma y cancelarla hasta el otro dia
+void test_cancelar_alarma(void){
     clock_t reloj;
+    static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
+    static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
 
-    reloj = CreateReloj(1, SnoozeAlarmReloj);
-    
-    SetupAlarmReloj(reloj, ALARM_TIME);  
-} */
+    reloj = CreateReloj(TICK_PER_SECOND, BuzzerOn);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SetupAlarmReloj(reloj, ALARM_TIME);
+    SimulateClockTicks(reloj, ONE_HOUR);            
+    TEST_ASSERT_TRUE(alarma_sono);
 
+    alarma_sono = false;
+    ToggleAlarmReloj(reloj);                        
+    SimulateClockTicks(reloj, TWENTY_FOUR_HOURS);   
+    TEST_ASSERT_FALSE(alarma_sono);                 
+} 
