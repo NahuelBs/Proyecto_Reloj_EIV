@@ -30,6 +30,7 @@ struct clock_s{
     hora_t current_time;    /**< guarda la hora actual*/
     hora_t alarm;           /**< guarda la hora en la que debe sonar la alarma */
     bool time_is_valid;     /**< guarda si la hora es valida o no*/
+    bool alarm_enabled;     /**< indica si la alarma esta activa o no */
     int ticks_count;        /**< contador de flancos internos */
     int ticks_per_seconds   /**< flancos necesarios para avanzar*/ 
 };
@@ -52,6 +53,7 @@ clock_t CreateReloj(unsigned int ticks_per_seconds, void * alarm_handler){
     clock_t self = &instance; 
     memset(self, 0, sizeof(struct clock_s)); //-> inicializa todos los atributos en cero, current_time = {0,0,..,0} y time_is_valid = false y demás.
     self->ticks_per_seconds = ticks_per_seconds;
+    self->alarm_enabled = false;
     return self;
 }
 
@@ -99,14 +101,20 @@ void NewTickReloj(clock_t self){
     }
 }
 
-void SetupAlarmReloj(clock_t self, const hora_t alarm){
+bool SetupAlarmReloj(clock_t self, const hora_t alarm){
     /*destino = self->alarm; origen  = alarm*/
     memcpy(self->alarm, alarm, sizeof(hora_t));
+    return self->alarm_enabled = true;
 }
 
 void GetAlarmReloj(clock_t self, hora_t alarm){
     /*destino = alarm; origen  = self->alarm*/
     memcpy(alarm, self->alarm, sizeof(hora_t));
+}
+
+bool ToggleAlarmReloj(clock_t self){
+    self->alarm_enabled = !self->alarm_enabled;
+    return self->alarm_enabled;
 }
 
 /* === End of documentation ==================================================================== */

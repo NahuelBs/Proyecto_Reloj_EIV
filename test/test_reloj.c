@@ -23,7 +23,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
     ‣ Al ajustar la hora el reloj queda en hora y es válida.
     ‣ Después de n ciclos de reloj la hora avanza un segundo, diez segundos, un minutos, diez minutos, una hora, diez horas y un día completo.
     ‣ Fijar la hora de la alarma y consultarla.
-    ‣ Fijar la alarma y avanzar el reloj para que suene.
+    ‣ Fijar la alarma para que suene.
     ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no suene.
     ‣ Hacer sonar la alarma y posponerla.
     ‣ Hacer sonar la alarma y cancelarla hasta el otro dia*/
@@ -34,6 +34,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 static const hora_t DEFAULT_TIME = {0, 0, 0, 0, 0, 0};
 static const hora_t INITIAL_TIME = {1, 2, 3, 4, 5, 6};
+static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
 
 #define TICK_PER_SECOND 3
 #define ONE_SECOND TICK_PER_SECOND
@@ -48,6 +49,10 @@ void SimulateClockTicks(clock_t reloj, unsigned int ticks){
     for(unsigned int i = 0; i < ticks; i++){
         NewTickReloj(reloj);
     }
+}
+
+bool EnableAlarmReloj(clock_t alarma){ 
+    return true;
 }
 
 //‣ Al inicializar el reloj está en 00:00 y con hora invalida.
@@ -168,11 +173,11 @@ void test_avanza_24_horas(void){
 void test_comprobar_las_0000_horas(void){
     clock_t reloj;
     hora_t hora_actual;
-    static const hora_t INITIAL_TIME_TEST = {1, 4, 0, 0, 0, 0};
+    static const hora_t INITIAL_TIME = {1, 4, 0, 0, 0, 0};
     static const hora_t EXPECTED_TIME     = {0, 0, 0, 0, 0, 0};
 
     reloj = CreateReloj(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME_TEST);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
     SimulateClockTicks(reloj, TEN_HOURS);
     GetCurrentTimeReloj(reloj, hora_actual);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
@@ -182,10 +187,26 @@ void test_comprobar_las_0000_horas(void){
 void test_fijar_hora_de_alarma(void){
     clock_t reloj;
     hora_t alarma_obtenida;
-    static const hora_t ALARM_TIME = {0, 6, 0, 0, 0, 0};
-
+    
     reloj = CreateReloj(1, NULL);
     SetupAlarmReloj(reloj, ALARM_TIME);
     GetAlarmReloj(reloj, alarma_obtenida);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(ALARM_TIME, alarma_obtenida, 6);
+}
+
+//‣ Fijar la alarma para que suene.
+void test_alarma_para_que_suene(void){
+    clock_t reloj;
+
+    reloj = CreateReloj(1, NULL);
+    TEST_ASSERT_TRUE(SetupAlarmReloj(reloj, ALARM_TIME));     
+}
+
+//‣ Fijar la alarma, deshabilitarla para no suene.
+void test_alarma_para_que_no_suene(void){
+    clock_t reloj;
+
+    reloj = CreateReloj(1, NULL);
+    SetupAlarmReloj(reloj, ALARM_TIME);
+    TEST_ASSERT_FALSE(ToggleAlarmReloj(reloj));    
 }

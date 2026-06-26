@@ -57,7 +57,7 @@ typedef uint8_t hora_t[6];
 
 /**
  * @brief Crea e inicializa una instancia del reloj.
- * * @param[in] ticks_per_seconds Cantidad de flancos de reloj del microprocesar necesarios para completar 1 segundo.
+ * @param[in] ticks_per_seconds Cantidad de flancos de reloj del microprocesar necesarios para completar 1 segundo.
  * @param[in] alarm_handler Puntero genérico (callback). Usar NULL si no se requiere.
  * @return clock_t Puntero a la instancia del reloj creada, o NULL si falla la asignación de memoria.
  */
@@ -66,27 +66,27 @@ clock_t CreateReloj(unsigned int ticks_per_seconds, void * alarm_handler);
 
 /**
  * @brief Obtiene la hora actual del reloj.
- * * @param[in] clock Puntero a la instancia del reloj de la cual se quiere leer la hora.
+ * @param[in] clock Puntero a la instancia del reloj de la cual se quiere leer la hora.
  * @param[out] current_time Arreglo de 6 bytes con la nueva hora en formato BCD.
- * @return true Si la hora devuelta es válida (ya fue configurada previamente).
- * @return false Si la hora es inválida (estado por defecto tras la inicialización).
+ * @return true si la hora devuelta es válida (ya fue configurada previamente).
+ * @return false si la hora es inválida (estado por defecto tras la inicialización).
  */
 
 bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
 
 /**
  * @brief Configura la hora actual del reloj.
- * * @param[in] clock Puntero a la instancia del reloj que se desea configurar.
+ * @param[in] clock Puntero a la instancia del reloj que se desea configurar.
  * @param[in] current_time Arreglo de 6 bytes con la nueva hora en formato BCD.
- * @return true Si la hora se configuró correctamente (valores BCD válidos).
- * @return false Si los datos de la hora son inválidos (por ejemplo, minutos mayores a 59).
+ * @return true si la hora se configuró correctamente (valores BCD válidos).
+ * @return false si los datos de la hora son inválidos (por ejemplo, minutos mayores a 59).
  */
 
 bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
 
 /**
  * @brief Notifica al reloj el paso de un flanco (tick).
- * * Incrementa el contador interno de flancos. Al alcanzar la cantidad 
+ * Incrementa el contador interno de flancos. Al alcanzar la cantidad 
  * configurada por segundo, procesa el avance del tiempo en formato BCD 
  * resolviendo los desbordamientos de segundos, minutos y horas.
  *
@@ -99,9 +99,10 @@ void NewTickReloj(clock_t clock);
  * @brief Configura la hora de la alarma.
  * @param[in] clock Puntero a la instancia del reloj.
  * @param[in] alarm_time Arreglo de 6 bytes con la hora de la alarma en BCD.
+ * @return true si se activo la alarma.
  */
 
-void SetupAlarmReloj(clock_t clock, const hora_t alarm);
+bool SetupAlarmReloj(clock_t clock, const hora_t alarm);
 
 /**
  * @brief Obtiene la hora configurada en la alarma.
@@ -110,6 +111,15 @@ void SetupAlarmReloj(clock_t clock, const hora_t alarm);
  */
 
 void GetAlarmReloj(clock_t clock, hora_t alarm);
+
+/**
+ * @brief Alterna el estado de activación de la alarma (encendido/apagado).
+ * @param[in] clock Puntero a la instancia del reloj.
+ * @return true si la alarma quedó activada.
+ * @return false si la alarma quedó desactivada.
+ */
+
+bool ToggleAlarmReloj(clock_t clock);
 
 /* === Private function implementation ========================================================= */
 
