@@ -27,12 +27,14 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Private data type declarations ========================================================== */
 
 struct clock_s{
-    hora_t current_time;    /**< guarda la hora actual*/
-    hora_t alarm;           /**< guarda la hora en la que debe sonar la alarma */
-    bool time_is_valid;     /**< guarda si la hora es valida o no*/
-    bool alarm_enabled;     /**< indica si la alarma esta activa o no */
-    int ticks_count;        /**< contador de flancos internos */
-    int ticks_per_seconds   /**< flancos necesarios para avanzar*/ 
+    hora_t current_time;            /**< guarda la hora actual*/
+    hora_t alarm;                   /**< guarda la hora en la que debe sonar la alarma */
+    clock_event_t alarm_handler;    /**< puntero a funcion utilizado para avisarle al reloj que la alarma esta sonando*/
+    bool time_is_valid;             /**< guarda si la hora es valida o no*/
+    bool alarm_enabled;             /**< indica si la alarma esta activa o no */
+    int ticks_count;                /**< contador de flancos internos */
+    int ticks_per_seconds;          /**< flancos necesarios para avanzar*/
+    
 };
 
 
@@ -48,12 +50,13 @@ struct clock_s{
 
 /* === Public function implementation ========================================================== */
 
-clock_t CreateReloj(unsigned int ticks_per_seconds, void * alarm_handler){
+clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler){
     static struct clock_s instance;
     clock_t self = &instance; 
     memset(self, 0, sizeof(struct clock_s)); //-> inicializa todos los atributos en cero, current_time = {0,0,..,0} y time_is_valid = false y demás.
     self->ticks_per_seconds = ticks_per_seconds;
     self->alarm_enabled = false;
+    self->alarm_handler = alarm_handler;
     return self;
 }
 
@@ -97,6 +100,11 @@ void NewTickReloj(clock_t self){
                     }
                 }
             } 
+        }
+    }
+    if (self->alarm_enabled) {
+        if (memcmp(self->current_time, self->alarm, sizeof(hora_t)) == 0) {
+            self->alarm_handler();  
         }
     }
 }

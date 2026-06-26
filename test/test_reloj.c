@@ -25,6 +25,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
     ‣ Fijar la hora de la alarma y consultarla.
     ‣ Fijar la alarma para que suene.
     ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no suene.
+    ‣ Fijar la alarma y avanzar el reloj para que suene.
     ‣ Hacer sonar la alarma y posponerla.
     ‣ Hacer sonar la alarma y cancelarla hasta el otro dia*/
 
@@ -35,6 +36,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 static const hora_t DEFAULT_TIME = {0, 0, 0, 0, 0, 0};
 static const hora_t INITIAL_TIME = {1, 2, 3, 4, 5, 6};
 static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
+static bool alarma_sono = false;
 
 #define TICK_PER_SECOND 3
 #define ONE_SECOND TICK_PER_SECOND
@@ -51,9 +53,10 @@ void SimulateClockTicks(clock_t reloj, unsigned int ticks){
     }
 }
 
-bool EnableAlarmReloj(clock_t alarma){ 
-    return true;
+void BuzzerOn(void){
+    alarma_sono = true;
 }
+
 
 //‣ Al inicializar el reloj está en 00:00 y con hora invalida.
 void test_reloj_inicia_invalido(void){
@@ -210,3 +213,27 @@ void test_alarma_para_que_no_suene(void){
     SetupAlarmReloj(reloj, ALARM_TIME);
     TEST_ASSERT_FALSE(ToggleAlarmReloj(reloj));    
 }
+
+//‣ Fijar la alarma y avanzar el reloj para que suene.
+void test_suena_alarma(void){
+    clock_t reloj;
+    
+    static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
+    static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
+
+    reloj = CreateReloj(TICK_PER_SECOND, BuzzerOn);
+    (void)SetupCurrentTimeReloj(reloj, INITIAL_TIME);
+    SetupAlarmReloj(reloj, ALARM_TIME);
+    SimulateClockTicks(reloj, ONE_HOUR);
+    TEST_ASSERT_TRUE(alarma_sono);
+}
+
+/* //‣ Hacer sonar la alarma y posponerla por una cantidad arbitraria de minutos.
+void test_posponer_alarma(void){
+    clock_t reloj;
+
+    reloj = CreateReloj(1, SnoozeAlarmReloj);
+    
+    SetupAlarmReloj(reloj, ALARM_TIME);  
+} */
+

@@ -51,6 +51,13 @@ typedef struct clock_s * clock_t;
 
 typedef uint8_t hora_t[6];
 
+/**
+ * @brief Puntero a función de evento del reloj.
+ * Se ejecuta cuando ocurre la alarma.
+ */
+
+typedef void (*clock_event_t)(void);
+
 /* === Private function declarations =========================================================== */
 
 /* === Public function declarations ============================================================ */
@@ -62,7 +69,7 @@ typedef uint8_t hora_t[6];
  * @return clock_t Puntero a la instancia del reloj creada, o NULL si falla la asignación de memoria.
  */
 
-clock_t CreateReloj(unsigned int ticks_per_seconds, void * alarm_handler);
+clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler);
 
 /**
  * @brief Obtiene la hora actual del reloj.
