@@ -36,6 +36,19 @@ extern "C" {
 
 /* === Macros definitions ====================================================================== */
 
+/**
+ * @brief Índices para acceder a cada posición del arreglo hora_t.
+ */
+
+typedef enum {
+    HOUR_TENS,      /**< Posición 1: decenas de hora */
+    HOUR_ONES,      /**< Posición 2: unidades de hora */
+    MINUTE_TENS,    /**< Posición 3: decenas de minuto */
+    MINUTE_ONES,    /**< Posición 4: unidades de minuto */
+    SECOND_TENS,    /**< Posición 5: decenas de segundo */
+    SECOND_ONES,    /**< Posición 6: unidades de segundo */
+} hora_index_t;
+
 /* === Public data type declarations =========================================================== */
 
 /**
@@ -72,16 +85,6 @@ typedef void (*clock_event_t)(void);
 clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler);
 
 /**
- * @brief Obtiene la hora actual del reloj.
- * @param[in] clock Puntero a la instancia del reloj de la cual se quiere leer la hora.
- * @param[out] current_time Arreglo de 6 bytes con la nueva hora en formato BCD.
- * @return true si la hora devuelta es válida (ya fue configurada previamente).
- * @return false si la hora es inválida (estado por defecto tras la inicialización).
- */
-
-bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
-
-/**
  * @brief Configura la hora actual del reloj.
  * @param[in] clock Puntero a la instancia del reloj que se desea configurar.
  * @param[in] current_time Arreglo de 6 bytes con la nueva hora en formato BCD.
@@ -90,6 +93,16 @@ bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
  */
 
 bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
+
+/**
+ * @brief Obtiene la hora actual del reloj.
+ * @param[in] clock Puntero a la instancia del reloj de la cual se quiere leer la hora.
+ * @param[out] current_time Arreglo de 6 bytes donde se copiará la hora actual en formato BCD.
+ * @return true si la hora devuelta es válida (ya fue configurada previamente).
+ * @return false si la hora es inválida (estado por defecto tras la inicialización).
+ */
+
+bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
 
 /**
  * @brief Notifica al reloj el paso de un flanco (tick).

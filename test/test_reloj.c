@@ -18,16 +18,17 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * @{
  *
 *************************************************************************************************/
-
-/*  ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
-    ‣ Al ajustar la hora el reloj queda en hora y es válida.
-    ‣ Después de n ciclos de reloj la hora avanza un segundo, diez segundos, un minutos, diez minutos, una hora, diez horas y un día completo.
-    ‣ Fijar la hora de la alarma y consultarla.
-    ‣ Fijar la alarma para que suene.
-    ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no suene.
-    ‣ Fijar la alarma y avanzar el reloj para que suene.
-    ‣ Hacer sonar la alarma y posponerla.
-    ‣ Hacer sonar la alarma y cancelarla hasta el otro dia*/
+/** @todo Test case:
+ * ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
+ * ‣ Al ajustar la hora el reloj queda en hora y es válida.
+ * ‣ Después de n ciclos de reloj la hora avanza un segundo, diez segundos, un minutos, diez minutos, una hora, diez horas y un día completo.
+ * ‣ Fijar la hora de la alarma y consultarla.
+ * ‣ Fijar la alarma para que suene.
+ * ‣ Fijar la alarma, deshabilitarla y avanzar el reloj para no suene.
+ * ‣ Fijar la alarma y avanzar el reloj para que suene.
+ * ‣ Hacer sonar la alarma y posponerla.
+ * ‣ Hacer sonar la alarma y cancelarla hasta el otro dia
+*************************************************************************************************/
 
 #include "unity.h"
 #include "reloj.h"
@@ -218,7 +219,7 @@ void test_alarma_para_que_no_suene(void){
 //‣ Fijar la alarma y avanzar el reloj para que suene.
 void test_suena_alarma(void){
     clock_t reloj;
-    
+    alarma_sono = false;
     static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
     static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
 
