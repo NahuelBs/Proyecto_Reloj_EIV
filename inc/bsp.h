@@ -61,7 +61,7 @@ typedef struct board_s {
  * @brief Funcion encargada de configurar los perifericos de la placa.
  */
 
-board_t BoardCreate(void);
+board_t CreateBoard(void);
 
 /* === Private function implementation ========================================================= */
 

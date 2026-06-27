@@ -21,6 +21,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include "screen.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 
 /* === Private Macros definitions ================================================================================== */
 
