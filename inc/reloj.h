@@ -82,7 +82,7 @@ typedef void (*clock_event_t)(void);
  * @return clock_t Puntero a la instancia del reloj creada, o NULL si falla la asignación de memoria.
  */
 
-clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler);
+clock_t CreateClock(unsigned int ticks_per_seconds, clock_event_t alarm_handler);
 
 /**
  * @brief Configura la hora actual del reloj.
@@ -92,7 +92,7 @@ clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler)
  * @return false si los datos de la hora son inválidos (por ejemplo, minutos mayores a 59).
  */
 
-bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
+bool SetupCurrentTimeClock(clock_t clock, const hora_t current_time);
 
 /**
  * @brief Obtiene la hora actual del reloj.
@@ -102,7 +102,7 @@ bool SetupCurrentTimeReloj(clock_t clock, const hora_t current_time);
  * @return false si la hora es inválida (estado por defecto tras la inicialización).
  */
 
-bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
+bool GetCurrentTimeClock(clock_t clock, hora_t current_time);
 
 /**
  * @brief Notifica al reloj el paso de un flanco (tick).
@@ -113,7 +113,7 @@ bool GetCurrentTimeReloj(clock_t clock, hora_t current_time);
  * @param[in] clock Puntero a la instancia del reloj.
  */
 
-void NewTickReloj(clock_t clock);
+void NewTickClock(clock_t clock);
 
 /**
  * @brief Configura la hora de la alarma.
@@ -122,7 +122,7 @@ void NewTickReloj(clock_t clock);
  * @return true si se activo la alarma.
  */
 
-bool SetupAlarmReloj(clock_t clock, const hora_t alarm);
+bool SetupAlarmClock(clock_t clock, const hora_t alarm);
 
 /**
  * @brief Obtiene la hora configurada en la alarma.
@@ -130,7 +130,7 @@ bool SetupAlarmReloj(clock_t clock, const hora_t alarm);
  * @param[out] alarm_time Arreglo de 6 bytes donde se copiará la hora de la alarma.
  */
 
-void GetAlarmReloj(clock_t clock, hora_t alarm);
+void GetAlarmClock(clock_t clock, hora_t alarm);
 
 /**
  * @brief Alterna el estado de activación de la alarma (encendido/apagado).
@@ -139,7 +139,7 @@ void GetAlarmReloj(clock_t clock, hora_t alarm);
  * @return false si la alarma quedó desactivada.
  */
 
-bool ToggleAlarmReloj(clock_t clock);
+bool ToggleAlarmClock(clock_t clock);
 
 /* === Private function implementation ========================================================= */
 

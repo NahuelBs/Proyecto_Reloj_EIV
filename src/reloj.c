@@ -100,7 +100,7 @@ static void SecondsToTime(uint32_t seconds, hora_t time) {
 
 /* === Public function implementation ========================================================== */
 
-clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler){
+clock_t CreateClock(unsigned int ticks_per_seconds, clock_event_t alarm_handler){
     static struct clock_s instance;
     clock_t self = &instance; 
     memset(self, 0, sizeof(struct clock_s)); //-> inicializa todos los atributos en cero, current_time = {0,0,..,0} y time_is_valid = false y demás.
@@ -110,17 +110,17 @@ clock_t CreateReloj(unsigned int ticks_per_seconds, clock_event_t alarm_handler)
     return self;
 }
 
-bool SetupCurrentTimeReloj(clock_t self, const hora_t current_time){
+bool SetupCurrentTimeClock(clock_t self, const hora_t current_time){
     self->current_time = TimeToSeconds(current_time);
     return self->time_is_valid = true;
 }
 
-bool GetCurrentTimeReloj(clock_t self, hora_t current_time){
+bool GetCurrentTimeClock(clock_t self, hora_t current_time){
     SecondsToTime(self->current_time, current_time); 
     return self->time_is_valid;
 }
 
-void NewTickReloj(clock_t self){
+void NewTickClock(clock_t self){
     self->ticks_count++;
     if(self->ticks_count < self->ticks_per_seconds){
         return;
@@ -137,16 +137,16 @@ void NewTickReloj(clock_t self){
     }  
 }
 
-bool SetupAlarmReloj(clock_t self, const hora_t alarm){
+bool SetupAlarmClock(clock_t self, const hora_t alarm){
     self->alarm = TimeToSeconds(alarm);
     return self->alarm_enabled = true;
 }
 
-void GetAlarmReloj(clock_t self, hora_t alarm){
+void GetAlarmClock(clock_t self, hora_t alarm){
     SecondsToTime(self->alarm, alarm); 
 }
 
-bool ToggleAlarmReloj(clock_t self){
+bool ToggleAlarmClock(clock_t self){
     self->alarm_enabled = !self->alarm_enabled;
     return self->alarm_enabled;
 }

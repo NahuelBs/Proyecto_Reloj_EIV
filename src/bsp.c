@@ -135,16 +135,16 @@ static void KeysInit(void) {
     board.CANCELAR = CreateDigitalInput(KEY_CANCEL_GPIO, KEY_CANCEL_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F1_PORT, KEY_F1_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F1_FUNC);
-    board.TEC1 = CreateDigitalInput(KEY_F1_GPIO, KEY_F1_BIT, false);
+    board.F1 = CreateDigitalInput(KEY_F1_GPIO, KEY_F1_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F2_PORT, KEY_F2_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F2_FUNC);
-    board.TEC2 = CreateDigitalInput(KEY_F2_GPIO, KEY_F2_BIT, false);
+    board.F2 = CreateDigitalInput(KEY_F2_GPIO, KEY_F2_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F3_PORT, KEY_F3_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F3_FUNC);
-    board.TEC3 = CreateDigitalInput(KEY_F3_GPIO, KEY_F3_BIT, false);
+    board.F3 = CreateDigitalInput(KEY_F3_GPIO, KEY_F3_BIT, false);
 
     Chip_SCU_PinMuxSet(KEY_F4_PORT, KEY_F4_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | KEY_F4_FUNC);
-    board.TEC4 = CreateDigitalInput(KEY_F4_GPIO, KEY_F4_BIT, false);
+    board.F4 = CreateDigitalInput(KEY_F4_GPIO, KEY_F4_BIT, false);
 }
 
 /**
@@ -170,7 +170,7 @@ static void UpdateDigits(uint8_t digit) {
 
 /* === Public function implementation ========================================================== */
 
-board_t BoardCreate(void) {
+board_t CreateBoard(void) {
     BoardSetup();
     DigitsInit();
     SegmentsInit();
