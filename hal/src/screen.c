@@ -73,7 +73,7 @@ static const uint8_t IMAGES[] = {
 /* === Private function implementation ============================================================================== */
 
 static display_t DisplayAllocate(void) {
-    static struct display_s instances[1] = {0};
+    static struct display_s instances[1] = {0}; //<- instances (cantidad de pantallas)
 
     return &instances[0];
 }

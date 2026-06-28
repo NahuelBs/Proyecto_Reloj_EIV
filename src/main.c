@@ -36,7 +36,7 @@ void ChangeMode(mode_t select_mode) {
     mode = select_mode;
     switch (mode) {
     case MODO_SIN_AJUSTAR:
-        DisplayFlashDigits(board->DISPLAY, 0, 3, 250); 
+        DisplayFlashDigits(board->DISPLAY, 0, 3, 3000); 
         break;
     default:
         break;
@@ -47,6 +47,7 @@ void ChangeMode(mode_t select_mode) {
 
 int main(void) {
     uint8_t display_digits[4];
+    uint8_t zeros[4] = {0, 0, 0, 0};
 
     board = CreateBoard();
 
@@ -56,8 +57,15 @@ int main(void) {
 
     while(true){
         if(mode == MODO_SIN_AJUSTAR){
-            DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+            DisplayWriteBCD(board->DISPLAY, zeros, sizeof(zeros));
+            DisplayToggleDots(board->DISPLAY, 1, 1);
         } 
+        for (int index = 0; index < 50; index++) {
+            for (int delay = 0; delay < 1000; delay++) {
+            __asm("NOP");
+        }
+        DisplayRefresh(board->DISPLAY); 
+        }
     }
 }
 
