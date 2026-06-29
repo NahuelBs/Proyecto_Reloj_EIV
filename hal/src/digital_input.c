@@ -78,11 +78,11 @@ digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
 
 
 /**
- * Función encargada de leer el estado actual de la terminal
+ * Función encargada de leer el estado actual de la terminal(entrada presionada o no)
  */
 
 bool GetStateDigitalInput(digital_input_t self) {
-  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin)!= self->inverted;  //ajusta el nivel lógico para las entradas activas en bajo.                                                                
+  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin)!= self->inverted;                                                                
 }
 
 /**
@@ -109,6 +109,10 @@ bool HasActivatedDigitalInput(digital_input_t self) {
   return HasChangedDigitalInput(self) == ACTIVATE_EVENT;
 }
 
+bool DigitalInputIsActivate(digital_input_t input){
+  
+}
+
 /**
  * Función encargada de detectar un flanco decendente 
  */
@@ -116,6 +120,8 @@ bool HasActivatedDigitalInput(digital_input_t self) {
 bool HasDeactivatedDigitalInput(digital_input_t self) {
   return HasChangedDigitalInput(self) == DEACTIVATE_EVENT;
 }
+
+
 
 /* === End of documentation ======================================================================================== */
 
