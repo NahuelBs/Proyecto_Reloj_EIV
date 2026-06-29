@@ -29,7 +29,9 @@ static mode_t mode;
 
 static clock_t clock;
 
-static volatile uint32_t tick_count;
+static const uint8_t MINUTES_LIMIT[] = {6, 0};
+
+static const uint8_t HOURS_LIMIT[] = {2, 4};
 
 /* === Private function implementation ========================================================= */
 
@@ -40,59 +42,82 @@ void ChangeMode(mode_t select_mode) {
         DisplayFlashDigits(board->DISPLAY, 0, 3, 3000); 
         break;
     case MODO_MINUTOS:
-        DisplayFlashDigits(board->DISPLAY, 0, 1, 250);
+        DisplayFlashDigits(board->DISPLAY, 2, 3, 5000);
         break;
     default:
         break;
     }
 }
 
+void IncrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
+    numero[1]++;
+    if (numero[1] > 9) {
+        numero[1] = 0;
+        numero[0]++;
+    }
+    if ((numero[0] == limite[0]) && (numero[1] == limite[1])) {
+        numero[0] = 0;
+        numero[1] = 0;
+    }
+}
+
+void DecrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
+    if (numero[1] == 0) {
+        numero[1] = 9;
+        if (numero[0] == 0) {
+            numero[0] = limite[0];
+            numero[1] = limite[1] - 1;
+        } else {
+            numero[0]--;
+        }
+    } else {
+        numero[1]--;
+    }
+}
+
 /* === Public function implementation ========================================================== */
 
 int main(void) {
-    uint8_t display_digits[4];
-    uint8_t zeros[4] = {0, 0, 0, 0};
-    static uint32_t start = 0;
-
+    uint8_t display_digits[4] = {0, 0, 0, 0};;
+  
     board = CreateBoard();
 
     clock = CreateClock(10, NULL);
     
-    SisTick_Init(1000);
     ChangeMode(MODO_SIN_AJUSTAR);
 
     while(true){
 
-        switch(mode){
-            case MODO_SIN_AJUSTAR:
-                DisplayWriteBCD(board->DISPLAY, zeros, sizeof(zeros));
-                DisplayToggleDots(board->DISPLAY, 1, 1);
-                if(HasActivatedDigitalInput(board->F1)){
-                    start = tick_count;
-                }
-                if(GetStateDigitalInput(board->F1)){
-                    if(start + 3000 < tick_count){
+            switch(mode){
+
+                case MODO_SIN_AJUSTAR:
+                    DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                    DisplayToggleDots(board->DISPLAY, 1, 1);
+                    if(HasActivatedDigitalInput(board->F1)){
                         ChangeMode(MODO_MINUTOS);
                     }
-                }
-                break;
-            default:
-                break;
-        }
-
-        for (int index = 0; index < 20; index++) {
-            for (int delay = 0; delay < 25000; delay++) {
-                __asm("NOP");
+                    break;
+                case MODO_MINUTOS:
+                    if(HasActivatedDigitalInput(board->F4)){
+                        IncrementBCD(&display_digits[2],MINUTES_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                    }
+                    if(HasActivatedDigitalInput(board->F3)){
+                        DecrementBCD(&display_digits[2],MINUTES_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                    }
+                    break;
+                default:
+                    break;
             }
+
+        for (int index = 0; index < 50; index++) {
+            for (int delay = 0; delay < 1000; delay++) {
+            __asm("NOP");
+        }
+        DisplayRefresh(board->DISPLAY); 
         }
     }
-}
-
-void SysTick_Handler(void) {
-
-    tick_count++;
-    DisplayRefresh(board->DISPLAY);
-    NewTickClock(clock);
 }
 
 /* === End of documentation ==================================================================== */
