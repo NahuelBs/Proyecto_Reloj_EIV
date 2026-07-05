@@ -8,11 +8,17 @@
 
 /* === Macros definitions ====================================================================== */
 
+#define TICK_PER_SECOND 3
+#define ONE_SECOND TICK_PER_SECOND
+#define TWENTY_FOUR_HOURS   (3600 * ONE_SECOND)
+
 /* === Private data type declarations ========================================================== */
 
 typedef enum {
     MODO_SIN_AJUSTAR,
-    MODO_MINUTOS 
+    MODO_MINUTOS,
+    MODO_HORAS,
+    MODO_NORMAL 
 } mode_t;
 
 /* === Private variable declarations =========================================================== */
@@ -44,6 +50,12 @@ void ChangeMode(mode_t select_mode) {
     case MODO_MINUTOS:
         DisplayFlashDigits(board->DISPLAY, 2, 3, 5000);
         break;
+    case MODO_HORAS:
+        DisplayFlashDigits(board->DISPLAY, 0, 1, 5000);
+        break;
+    case MODO_NORMAL:
+        DisplayFlashDigits(board->DISPLAY, 0, 3, 0);
+        break;
     default:
         break;
     }
@@ -72,6 +84,12 @@ void DecrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
         }
     } else {
         numero[1]--;
+    }
+}
+
+void SimulateClockTicks(clock_t reloj, unsigned int ticks){
+    for(unsigned int i = 0; i < ticks; i++){
+        NewTickClock(reloj);
     }
 }
 
@@ -106,6 +124,27 @@ int main(void) {
                         DecrementBCD(&display_digits[2],MINUTES_LIMIT);
                         DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
                     }
+                    if(HasActivatedDigitalInput(board->ACEPTAR)){
+                        ChangeMode(MODO_HORAS);
+                    }
+                    break;
+                case MODO_HORAS:
+                    if(HasActivatedDigitalInput(board->F4)){
+                        IncrementBCD(&display_digits[0],HOURS_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                    }
+                    if(HasActivatedDigitalInput(board->F3)){
+                        DecrementBCD(&display_digits[0],HOURS_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                    }
+                    if(HasActivatedDigitalInput(board->ACEPTAR)){
+                        ChangeMode(MODO_NORMAL);
+                    }
+                    break;
+                case MODO_NORMAL:
+                        
+                        SimulateClockTicks(clock,TWENTY_FOUR_HOURS);
+                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
                     break;
                 default:
                     break;
