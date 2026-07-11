@@ -142,8 +142,9 @@ bool SetupAlarmClock(clock_t self, const hora_t alarm){
     return self->alarm_enabled = true;
 }
 
-void GetAlarmClock(clock_t self, hora_t alarm){
-    SecondsToTime(self->alarm, alarm); 
+bool GetAlarmClock(clock_t self, hora_t alarm){
+    SecondsToTime(self->alarm, alarm);
+    return self->alarm_enabled; 
 }
 
 bool ToggleAlarmClock(clock_t self){

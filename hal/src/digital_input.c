@@ -109,10 +109,6 @@ bool HasActivatedDigitalInput(digital_input_t self) {
   return HasChangedDigitalInput(self) == ACTIVATE_EVENT;
 }
 
-bool DigitalInputIsActivate(digital_input_t input){
-  
-}
-
 /**
  * Función encargada de detectar un flanco decendente 
  */

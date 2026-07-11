@@ -128,9 +128,10 @@ bool SetupAlarmClock(clock_t clock, const hora_t alarm);
  * @brief Obtiene la hora configurada en la alarma.
  * @param[in] clock Puntero a la instancia del reloj.
  * @param[out] alarm_time Arreglo de 6 bytes donde se copiará la hora de la alarma.
+ * @return true alarma ativa.
  */
 
-void GetAlarmClock(clock_t clock, hora_t alarm);
+bool GetAlarmClock(clock_t clock, hora_t alarm);
 
 /**
  * @brief Alterna el estado de activación de la alarma (encendido/apagado).
