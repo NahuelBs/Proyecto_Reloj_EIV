@@ -23,11 +23,16 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include <stdbool.h>
 #include <stddef.h>
 
+/* === Public macros definitions =================================================================================== */
+
+#define DEBOUNCE_THRESHOLD 1000 
+
 /* === Private data type declarations ============================================================================== */
 
 struct digital_input_s {
   uint8_t port;
-  uint32_t pin;     
+  uint32_t pin;
+  uint16_t debounce_counter;     
   bool last_state;
   bool inverted;     
   bool used;
@@ -70,6 +75,7 @@ digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
     self->port     = port;
     self->pin      = pin;
     self->inverted = inverted;
+    self->debounce_counter = 0;
     //funcion encagada de definir el sentido de circulación de datos del pin (entrada o salida)
     Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, false);  // false -> entrada
   }
@@ -87,17 +93,26 @@ bool GetStateDigitalInput(digital_input_t self) {
 
 /**
  * Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
+ * se agrego antirrebote
  */
 
 int HasChangedDigitalInput(digital_input_t self) {     
   int state          = 0;
   bool current_state = GetStateDigitalInput(self);
-  if (current_state && !self->last_state) {            // si el estado actual es verdadero (1) y el estado anterior es falso (0)
-    state = ACTIVATE_EVENT;                            // hubo un evento de activacion
-  } else if (!current_state && self->last_state) {     // estado actual es falso (0) y el estado anterior es verdadero (1)
-    state = DEACTIVATE_EVENT;                          // hubo un evento de desactivacion
+  if (current_state != self->last_state) {  
+    self->debounce_counter++;
+    if (self->debounce_counter >= DEBOUNCE_THRESHOLD) {
+      self->debounce_counter = 0;
+      if (current_state && !self->last_state) {
+        state = ACTIVATE_EVENT;                            
+      } else if (!current_state && self->last_state) {     
+        state = DEACTIVATE_EVENT;                          
+      }
+      self->last_state = current_state;
+    }
+  }else{
+    self->debounce_counter = 0;
   }
-  self->last_state = current_state;
   return state;
 }
 

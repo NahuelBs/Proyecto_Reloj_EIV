@@ -129,11 +129,11 @@ void AlarmOn(void){
 
 void SnoozeAlarm(void) {
     uint8_t alarm_time[4];
-    GetAlarmClock(clock, alarm_time);           // leo la hora actual de la alarma
+    GetAlarmClock(clock, alarm_time);           
     for (int i = 0; i < 5; i++) {
-        IncrementBCD(&alarm_time[2], MINUTES_LIMIT);  // le sumo 5 minutos, uno por uno
+        IncrementBCD(&alarm_time[2], MINUTES_LIMIT);  
     }
-    SetupAlarmClock(clock, alarm_time);         // guardo la nueva hora de alarma
+    SetupAlarmClock(clock, alarm_time);        
 }
 
 /* === Public function implementation ========================================================== */
@@ -270,9 +270,9 @@ void SysTick_Handler(void) {
     static uint16_t f2_release_count;
     static bool f1_action_fired = false;
     static bool f2_action_fired = false;
-    static bool alarm_enabled_dot = false;
     static uint8_t alarm_temp[4];
     static uint16_t inactivity_count = 0;
+    static bool alarm_enabled_dot = false;
     bool setting = (mode == MODO_MINUTOS || mode == MODO_HORAS || mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA);
 
     DisplayRefresh(board->DISPLAY);
@@ -306,8 +306,8 @@ void SysTick_Handler(void) {
     }
 
     if (GetStateDigitalInput(board->F2)){        
-        f2_release_count;
         f2_hold_count++;
+        f2_release_count = 0;
         if (f2_hold_count >= 3000 && !f2_action_fired) {
             f2_action_fired = true;
             GetAlarmClock(clock, display_digits);
