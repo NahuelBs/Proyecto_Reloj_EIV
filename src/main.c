@@ -28,18 +28,14 @@ typedef enum {
 /* === Private variable definitions ============================================================ */
 
 static board_t board;
-
 static mode_t mode;
-
 static clock_t clock;
-
 static const uint8_t MINUTES_LIMIT[] = {6, 0};
-
 static const uint8_t HOURS_LIMIT[] = {2, 4};
-
-static uint8_t display_digits[4] = {0, 0, 0, 0};
-
+static uint8_t display_digits[4];
 static volatile bool alarm_sounding = false;
+static bool flag_startup = true;
+static volatile bool evt_reset_count;
 
 /* === Private function implementation ========================================================= */
 
@@ -47,7 +43,7 @@ void ChangeMode(mode_t select_mode) {
     mode = select_mode;
     switch (mode) {
     case MODO_SIN_AJUSTAR:
-        DisplayFlashDigits(board->DISPLAY, 0, 3, 150); 
+        DisplayFlashDigits(board->DISPLAY, 0, 3, 500);
         break;
     case MODO_MINUTOS:
         DisplayFlashDigits(board->DISPLAY, 2, 3, 200);
@@ -95,6 +91,12 @@ void DecrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
     }
 }
 
+void UpdateDot(void){
+    if(mode == MODO_SIN_AJUSTAR){
+        DisplayToggleDots(board->DISPLAY, 1, 1);
+    }
+}
+
 void AlarmOn(void){
     alarm_sounding = true;        //la alarma se encuentra "sonando"
 }
@@ -123,6 +125,11 @@ int main(void) {
             switch(mode){
 
                 case MODO_SIN_AJUSTAR:
+                    if(flag_startup){
+                        uint8_t temp[4] = {0, 0, 0, 0};
+                        DisplayWriteBCD(board->DISPLAY, temp, sizeof(temp));
+                        flag_startup = false; 
+                    }  
                     break;
                 case MODO_MINUTOS:
                     if(HasActivatedDigitalInput(board->F4)){
@@ -229,15 +236,6 @@ int main(void) {
                 default:
                     break;
             }
-
-/*Delay para frenar el ritmo del loop principal: sin esto, el while da vueltas a la velocidad máxima del CPU, lo cual puede saturar
-lecturas de entradas u otras funciones que esperan ser llamadas a un ritmo más pausado.*/ 
-
-            for (int index = 0; index < 15; index++){
-                for (int delay = 0; delay < 25000; delay++) {
-                    __asm("NOP");
-                }
-            }
     }
 }
 
@@ -255,7 +253,17 @@ void SysTick_Handler(void) {
     DisplayRefresh(board->DISPLAY);
     NewTickClock(clock);
 
-    count = (count + 1) % 2000;
+    if (evt_reset_count) {
+        evt_reset_count = false;
+        count = 0;             
+    }
+
+    count = (count + 1) % 1000;
+
+    if (count == 4) { // 4ms de desfasaje para sincronizar con el primer ciclo completo de multiplexado
+        UpdateDot();
+    }
+
      if (mode == MODO_NORMAL){
         GetCurrentTimeClock(clock, display_digits);
         DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
@@ -299,13 +307,6 @@ void SysTick_Handler(void) {
     if (alarm_sounding){
         if (count == 0 || count == 250) {
             DisplayToggleDots(board->DISPLAY, 0, 0);
-        }
-    }
-
-    if (mode == MODO_SIN_AJUSTAR) {
-        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
-        if (count == 0 || count == 1000) {
-            DisplayToggleDots(board->DISPLAY, 1, 1);
         }
     }
 
