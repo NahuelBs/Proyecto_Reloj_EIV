@@ -1,4 +1,23 @@
+/************************************************************************************************
+Copyright (c) 2026, Nahuel Blanco Suárez < nahuelbs95@gmail.com >. All rights
+reserved.
 
+This software is proprietary and confidential. Unauthorized copying,
+distribution, modification, or publication of this file, via any medium, is
+strictly prohibited without the express written permission of the copyright
+owner.
+
+SPDX-License-Identifier: LicenseRef-Proprietary
+*************************************************************************************************/
+/** * @file main.c
+ * @brief Aplicación principal: Reloj Despertador con EDU-CIAA-NXP.
+ */
+
+/** * @addtogroup LAB8 Laboratorio 8 - Implementación de Reloj Despertador
+ * @brief Integración de la Capa de Abstracción de Hardware (BSP) y la 
+ * librería de gestión de tiempo/alarma para el funcionamiento del reloj.
+ * @{
+ */
 /* === Headers files inclusions =============================================================== */
 
 #include <stdio.h>
@@ -36,6 +55,8 @@ static volatile bool alarm_sounding = false;
 static bool flag_startup = true;
 static volatile bool evt_timeout = false;
 static volatile bool alarm_enabled_changed = false;
+static volatile bool evt_f1_3seg = false;
+static volatile bool evt_f2_3seg = false;
 
 /* === Private function implementation ========================================================= */
 
@@ -92,10 +113,7 @@ void DecrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
 }
 
 void UpdateDot(void){
-    if(mode == MODO_SIN_AJUSTAR){
-        DisplayToggleDots(board->DISPLAY, 1, 1);
-    }
-    if(mode == MODO_NORMAL){
+    if(mode == MODO_SIN_AJUSTAR || MODO_NORMAL){
         DisplayToggleDots(board->DISPLAY, 1, 1);
     }
     if(mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
@@ -106,7 +124,6 @@ void UpdateDot(void){
         DisplayToggleDots(board->DISPLAY, 3, 3);
     }
 }
-
 
 void UpdateDisplay(void){
     if(mode == MODO_SIN_AJUSTAR){
@@ -145,16 +162,26 @@ int main(void) {
     clock = CreateClock(10, AlarmOn);
     
     ChangeMode(MODO_SIN_AJUSTAR);
-
+    
     while(true){
 
-            if (evt_timeout) {
+            if (evt_timeout){
                 evt_timeout = false;
                 if (mode == MODO_MINUTOS || mode == MODO_HORAS) {
                     ChangeMode(GetCurrentTimeClock(clock, display_digits) ? MODO_NORMAL : MODO_SIN_AJUSTAR);
                 } else if (mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
                     ChangeMode(MODO_NORMAL);
                 }
+            }
+
+            if (evt_f1_3seg){
+                evt_f1_3seg = false;
+                ChangeMode(MODO_MINUTOS);
+            }
+        
+            if (evt_f2_3seg){
+                evt_f2_3seg = false;
+                ChangeMode(MODO_MINUTOS_ALARMA);
             }
 
             switch(mode){
@@ -295,7 +322,7 @@ void SysTick_Handler(void) {
         f1_release_count = 0;
         if (f1_hold_count >= 3000 && !f1_action_fired) {
             f1_action_fired = true;
-            ChangeMode(MODO_MINUTOS);
+            evt_f1_3seg = true;
         }
     } else {
         f1_release_count++;
@@ -310,9 +337,7 @@ void SysTick_Handler(void) {
         f2_release_count = 0;
         if (f2_hold_count >= 3000 && !f2_action_fired) {
             f2_action_fired = true;
-            GetAlarmClock(clock, display_digits);
-            ChangeMode(MODO_MINUTOS_ALARMA);
-            DisplayToggleDots(board->DISPLAY, 0, 3);
+            evt_f2_3seg = true;
         }
     }else{
         f2_release_count++;
