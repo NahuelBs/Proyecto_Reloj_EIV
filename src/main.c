@@ -1,5 +1,4 @@
 
-
 /* === Headers files inclusions =============================================================== */
 
 #include <stdio.h>
@@ -36,6 +35,7 @@ static uint8_t display_digits[4];
 static volatile bool alarm_sounding = false;
 static bool flag_startup = true;
 static volatile bool evt_timeout = false;
+static volatile bool alarm_enabled_changed = false;
 
 /* === Private function implementation ========================================================= */
 
@@ -61,7 +61,7 @@ void ChangeMode(mode_t select_mode) {
         DisplayFlashDigits(board->DISPLAY, 0, 1, 250);
     break;
     default:
-        break;
+        break;    
     }
 }
 
@@ -96,9 +96,17 @@ void UpdateDot(void){
         DisplayToggleDots(board->DISPLAY, 1, 1);
     }
     if(mode == MODO_NORMAL){
-        DisplayToggleDots(board->DISPLAY,1,1);
+        DisplayToggleDots(board->DISPLAY, 1, 1);
+    }
+    if(mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
+        DisplayToggleDots(board->DISPLAY, 0, 3);
+    }
+    if(alarm_enabled_changed){                  
+        alarm_enabled_changed = false;
+        DisplayToggleDots(board->DISPLAY, 3, 3);
     }
 }
+
 
 void UpdateDisplay(void){
     if(mode == MODO_SIN_AJUSTAR){
@@ -109,13 +117,14 @@ void UpdateDisplay(void){
         }  
     }
     if(mode == MODO_NORMAL){
-        DisplayWriteBCD(board->DISPLAY,display_digits,sizeof(display_digits));
         GetCurrentTimeClock(clock, display_digits);
+        DisplayWriteBCD(board->DISPLAY,display_digits,sizeof(display_digits));
     }
 }
 
 void AlarmOn(void){
-    alarm_sounding = true;        //la alarma se encuentra "sonando"
+    alarm_sounding = true;
+    DisplayToggleDots(board->DISPLAY, 0, 0);  
 }
 
 void SnoozeAlarm(void) {
@@ -226,8 +235,7 @@ int main(void) {
                         SetupAlarmClock(clock, display_digits);
                         ChangeMode(MODO_HORAS_ALARMA);
                     }
-                    if (HasActivatedDigitalInput(board->CANCELAR)) {
-                        DisplayToggleDots(board->DISPLAY, 0, 3);      
+                    if (HasActivatedDigitalInput(board->CANCELAR)) {     
                         ChangeMode(MODO_NORMAL);
                     }     
                     break;
@@ -242,11 +250,9 @@ int main(void) {
                     }
                     if(HasActivatedDigitalInput(board->ACEPTAR)){
                         SetupAlarmClock(clock, display_digits);
-                        DisplayToggleDots(board->DISPLAY, 0, 3);
                         ChangeMode(MODO_NORMAL);
                     }
                     if (HasActivatedDigitalInput(board->CANCELAR)) {
-                        DisplayToggleDots(board->DISPLAY, 0, 3);
                         ChangeMode(MODO_NORMAL);
                     }
                     break;
@@ -272,8 +278,6 @@ void SysTick_Handler(void) {
     DisplayRefresh(board->DISPLAY);
     NewTickClock(clock);
 
-    count = (count + 1) % 1000;
-
     if (count == 4) { // 4ms de desfasaje para sincronizar con el primer ciclo completo de multiplexado
         UpdateDot();
     }
@@ -283,6 +287,8 @@ void SysTick_Handler(void) {
     }else if(count == 500){
         UpdateDisplay();
     }
+
+    count = (count + 1) % 1000;
 
     if (GetStateDigitalInput(board->F1)){
         f1_hold_count++;
@@ -316,19 +322,6 @@ void SysTick_Handler(void) {
         }
     }
 
-    bool alarm_enabled = GetAlarmClock(clock, alarm_temp);
-
-    if (alarm_enabled != alarm_enabled_dot){
-        alarm_enabled_dot = alarm_enabled;
-        DisplayToggleDots(board->DISPLAY, 3, 3);
-    }
-
-    if (alarm_sounding){
-        if (count == 0 || count == 250) {
-            DisplayToggleDots(board->DISPLAY, 0, 0);
-        }
-    }
-
     if (setting) {
         if (GetStateDigitalInput(board->F3) || GetStateDigitalInput(board->F4) || 
             GetStateDigitalInput(board->ACEPTAR) || GetStateDigitalInput(board->CANCELAR)) {
@@ -344,6 +337,12 @@ void SysTick_Handler(void) {
         inactivity_count = 0;
     }
 
+    bool alarm_enabled = GetAlarmClock(clock, alarm_temp);
+
+    if (alarm_enabled != alarm_enabled_dot){
+        alarm_enabled_dot = alarm_enabled;
+        alarm_enabled_changed = true; 
+    }
 }
 
 /* === End of documentation ==================================================================== */
