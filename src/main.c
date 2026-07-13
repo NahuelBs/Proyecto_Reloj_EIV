@@ -35,7 +35,7 @@ static const uint8_t HOURS_LIMIT[] = {2, 4};
 static uint8_t display_digits[4];
 static volatile bool alarm_sounding = false;
 static bool flag_startup = true;
-static volatile bool evt_reset_count;
+static volatile bool evt_timeout = false;
 
 /* === Private function implementation ========================================================= */
 
@@ -46,19 +46,19 @@ void ChangeMode(mode_t select_mode) {
         DisplayFlashDigits(board->DISPLAY, 0, 3, 500);
         break;
     case MODO_MINUTOS:
-        DisplayFlashDigits(board->DISPLAY, 2, 3, 200);
+        DisplayFlashDigits(board->DISPLAY, 2, 3, 250);
         break;
     case MODO_HORAS:
-        DisplayFlashDigits(board->DISPLAY, 0, 1, 200);
+        DisplayFlashDigits(board->DISPLAY, 0, 1, 250);
         break;
     case MODO_NORMAL:
         DisplayFlashDigits(board->DISPLAY, 0, 3, 0);
         break;
     case MODO_MINUTOS_ALARMA:
-        DisplayFlashDigits(board->DISPLAY, 2, 3, 200);
+        DisplayFlashDigits(board->DISPLAY, 2, 3, 250);
         break;
     case MODO_HORAS_ALARMA:
-        DisplayFlashDigits(board->DISPLAY, 0, 1, 200);
+        DisplayFlashDigits(board->DISPLAY, 0, 1, 250);
     break;
     default:
         break;
@@ -95,6 +95,23 @@ void UpdateDot(void){
     if(mode == MODO_SIN_AJUSTAR){
         DisplayToggleDots(board->DISPLAY, 1, 1);
     }
+    if(mode == MODO_NORMAL){
+        DisplayToggleDots(board->DISPLAY,1,1);
+    }
+}
+
+void UpdateDisplay(void){
+    if(mode == MODO_SIN_AJUSTAR){
+        if(flag_startup){
+            int8_t temp[4] = {0, 0, 0, 0};
+            DisplayWriteBCD(board->DISPLAY, temp, sizeof(temp));
+            flag_startup = false; 
+        }  
+    }
+    if(mode == MODO_NORMAL){
+        DisplayWriteBCD(board->DISPLAY,display_digits,sizeof(display_digits));
+        GetCurrentTimeClock(clock, display_digits);
+    }
 }
 
 void AlarmOn(void){
@@ -122,14 +139,18 @@ int main(void) {
 
     while(true){
 
+            if (evt_timeout) {
+                evt_timeout = false;
+                if (mode == MODO_MINUTOS || mode == MODO_HORAS) {
+                    ChangeMode(GetCurrentTimeClock(clock, display_digits) ? MODO_NORMAL : MODO_SIN_AJUSTAR);
+                } else if (mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
+                    ChangeMode(MODO_NORMAL);
+                }
+            }
+
             switch(mode){
 
                 case MODO_SIN_AJUSTAR:
-                    if(flag_startup){
-                        uint8_t temp[4] = {0, 0, 0, 0};
-                        DisplayWriteBCD(board->DISPLAY, temp, sizeof(temp));
-                        flag_startup = false; 
-                    }  
                     break;
                 case MODO_MINUTOS:
                     if(HasActivatedDigitalInput(board->F4)){
@@ -144,11 +165,7 @@ int main(void) {
                         ChangeMode(MODO_HORAS);
                     }
                     if (HasActivatedDigitalInput(board->CANCELAR)) {
-                        if (GetCurrentTimeClock(clock, display_digits)) {   
-                            ChangeMode(MODO_NORMAL);
-                        } else {
-                            ChangeMode(MODO_SIN_AJUSTAR);
-                        }
+                        ChangeMode(MODO_SIN_AJUSTAR);
                     }
                     break;
                 case MODO_HORAS:
@@ -243,6 +260,8 @@ void SysTick_Handler(void) {
     static uint16_t count = 0;
     static uint16_t f1_hold_count = 0;
     static uint16_t f2_hold_count = 0;
+    static uint16_t f1_release_count;
+    static uint16_t f2_release_count;
     static bool f1_action_fired = false;
     static bool f2_action_fired = false;
     static bool alarm_enabled_dot = false;
@@ -253,38 +272,35 @@ void SysTick_Handler(void) {
     DisplayRefresh(board->DISPLAY);
     NewTickClock(clock);
 
-    if (evt_reset_count) {
-        evt_reset_count = false;
-        count = 0;             
-    }
-
     count = (count + 1) % 1000;
 
     if (count == 4) { // 4ms de desfasaje para sincronizar con el primer ciclo completo de multiplexado
         UpdateDot();
     }
 
-     if (mode == MODO_NORMAL){
-        GetCurrentTimeClock(clock, display_digits);
-        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
-
-        if (count == 0 || count == 1000){
-            DisplayToggleDots(board->DISPLAY, 1, 1);
-        }
+    if (count == 0) { 
+        UpdateDisplay();
+    }else if(count == 500){
+        UpdateDisplay();
     }
 
     if (GetStateDigitalInput(board->F1)){
         f1_hold_count++;
+        f1_release_count = 0;
         if (f1_hold_count >= 3000 && !f1_action_fired) {
             f1_action_fired = true;
             ChangeMode(MODO_MINUTOS);
         }
     } else {
-        f1_hold_count = 0;
-        f1_action_fired = false;
+        f1_release_count++;
+        if(f1_release_count > 50){  //50 ms de tolerancia al rebote
+            f1_hold_count = 0;
+            f1_action_fired = false;
+        }
     }
 
-    if (GetStateDigitalInput(board->F2)){
+    if (GetStateDigitalInput(board->F2)){        
+        f2_release_count;
         f2_hold_count++;
         if (f2_hold_count >= 3000 && !f2_action_fired) {
             f2_action_fired = true;
@@ -293,8 +309,11 @@ void SysTick_Handler(void) {
             DisplayToggleDots(board->DISPLAY, 0, 3);
         }
     }else{
-        f2_hold_count = 0;
-        f2_action_fired = false;
+        f2_release_count++;
+        if(f2_release_count > 50){
+            f2_hold_count = 0;
+            f2_action_fired = false;
+        }
     }
 
     bool alarm_enabled = GetAlarmClock(clock, alarm_temp);
@@ -311,21 +330,19 @@ void SysTick_Handler(void) {
     }
 
     if (setting) {
-        bool key_pressed = GetStateDigitalInput(board->F3) || GetStateDigitalInput(board->F4) || GetStateDigitalInput(board->ACEPTAR) || GetStateDigitalInput(board->CANCELAR);
-        if (key_pressed) {
+        if (GetStateDigitalInput(board->F3) || GetStateDigitalInput(board->F4) || 
+            GetStateDigitalInput(board->ACEPTAR) || GetStateDigitalInput(board->CANCELAR)) {
             inactivity_count = 0;
-        } else if (++inactivity_count >= 30000) {
-            inactivity_count = 0;
-            if (mode == MODO_MINUTOS || mode == MODO_HORAS) {
-                uint8_t temp[4];
-                ChangeMode(GetCurrentTimeClock(clock, temp) ? MODO_NORMAL : MODO_SIN_AJUSTAR);
-            } else {
-                ChangeMode(MODO_NORMAL);
+        } else {
+            inactivity_count++;
+            if (inactivity_count >= 30000) {
+                inactivity_count = 0;
+                evt_timeout = true;
             }
         }
     } else {
         inactivity_count = 0;
-}
+    }
 
 }
 
