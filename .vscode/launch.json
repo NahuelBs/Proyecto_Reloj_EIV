@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug CIAA",
+      "cwd": "${workspaceFolder}",
+      "executable": "${workspaceFolder}/build/bin/Proyecto_Reloj.elf",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "serverpath": "C:/msys64/ucrt64/bin/openocd.exe",
+      "configFiles": [
+        "${workspaceFolder}/ftdi_interface.cfg",
+        "${workspaceFolder}/ciaa-nxp.cfg"
+      ],
+      "runToEntryPoint": "main",
+      "gdbPath": "C:/msys64/ucrt64/bin/gdb-multiarch.exe",
+      "liveWatch": {
+      "enabled": true,
+      "samplesPerSecond": 4
+      }
+    }
+  ]
+}
