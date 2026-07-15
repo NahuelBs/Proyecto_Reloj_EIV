@@ -50,15 +50,14 @@ static mode_t mode;
 static clock_t clock;
 static const uint8_t MINUTES_LIMIT[] = {6, 0};
 static const uint8_t HOURS_LIMIT[] = {2, 4};
-static uint8_t display_digits[4];
+static uint8_t display_digits[6];
 static volatile bool alarm_sounding = false;
 static bool flag_startup = true;
 static volatile bool evt_timeout = false;
 static volatile bool alarm_enabled_changed = false;
 static volatile bool evt_f1_3seg = false;
 static volatile bool evt_f2_3seg = false;
-static volatile int i=0;
-static volatile int n=0;
+static volatile bool alarm_enabled_dot = false;
 
 /* === Private function implementation ========================================================= */
 
@@ -123,7 +122,6 @@ void UpdateDot(void){
     }
     if(mode == MODO_NORMAL){
         if(alarm_enabled_changed){
-            i++;                  
             alarm_enabled_changed = false;
             DisplayToggleDots(board->DISPLAY, 3, 3);
         }
@@ -133,7 +131,7 @@ void UpdateDot(void){
 void UpdateDisplay(void){
     if(mode == MODO_SIN_AJUSTAR){
         if(flag_startup){
-            int8_t temp[4] = {0, 0, 0, 0};
+            uint8_t temp[6] = {0, 0, 0, 0, 0, 0};
             DisplayWriteBCD(board->DISPLAY, temp, sizeof(temp));
             flag_startup = false; 
         }  
@@ -141,6 +139,9 @@ void UpdateDisplay(void){
     if(mode == MODO_NORMAL){
         GetCurrentTimeClock(clock, display_digits);
         DisplayWriteBCD(board->DISPLAY,display_digits,sizeof(display_digits));
+        if(alarm_enabled_dot){
+            DisplayToggleDots(board->DISPLAY, 3, 3);
+        }
     }
 }
 
@@ -150,7 +151,7 @@ void AlarmOn(void){
 }
 
 void SnoozeAlarm(void) {
-    uint8_t alarm_time[4];          
+    uint8_t alarm_time[6];          
     for (int i = 0; i < 5; i++) {
         IncrementBCD(&alarm_time[2], MINUTES_LIMIT);  
     }
@@ -240,13 +241,13 @@ int main(void) {
                         }
                     } else {
                         if (HasActivatedDigitalInput(board->ACEPTAR)) {
-                            uint8_t temp[4];
+                            uint8_t temp[6];
                             if (!GetAlarmClock(clock, temp)) {
                                 ToggleAlarmClock(clock);
                             }
                         }
                         if (HasActivatedDigitalInput(board->CANCELAR)) {
-                            uint8_t temp[4];
+                            uint8_t temp[6];
                             if (GetAlarmClock(clock, temp)) {
                                 ToggleAlarmClock(clock);
                             }
@@ -280,7 +281,6 @@ int main(void) {
                     }
                     if(HasActivatedDigitalInput(board->ACEPTAR)){
                         SetupAlarmClock(clock, display_digits);
-                        GetAlarmClock(clock, display_digits);
                         ChangeMode(MODO_NORMAL);
                     }
                     if (HasActivatedDigitalInput(board->CANCELAR)) {
@@ -301,9 +301,8 @@ void SysTick_Handler(void) {
     static uint16_t f2_release_count;
     static bool f1_action_fired = false;
     static bool f2_action_fired = false;
-    static uint8_t alarm_temp[4];
+    static uint8_t alarm_temp[6];
     static uint16_t inactivity_count = 0;
-    static bool alarm_enabled_dot = false;
     bool setting = (mode == MODO_MINUTOS || mode == MODO_HORAS || mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA);
 
     DisplayRefresh(board->DISPLAY);
@@ -369,7 +368,6 @@ void SysTick_Handler(void) {
     bool alarm_enabled = GetAlarmClock(clock, alarm_temp);
 
     if (alarm_enabled != alarm_enabled_dot){
-        n++;
         alarm_enabled_dot = alarm_enabled;
         alarm_enabled_changed = true; 
     }

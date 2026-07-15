@@ -88,8 +88,7 @@ clock_t CreateClock(unsigned int ticks_per_seconds, clock_event_t alarm_handler)
  * @brief Configura la hora actual del reloj.
  * @param[in] clock Puntero a la instancia del reloj que se desea configurar.
  * @param[in] current_time Arreglo de 6 bytes con la nueva hora en formato BCD.
- * @return true si la hora se configuró correctamente (valores BCD válidos).
- * @return false si los datos de la hora son inválidos (por ejemplo, minutos mayores a 59).
+ * @return true si la hora se configuró correctamente.
  */
 
 bool SetupCurrentTimeClock(clock_t clock, const hora_t current_time);
@@ -98,8 +97,7 @@ bool SetupCurrentTimeClock(clock_t clock, const hora_t current_time);
  * @brief Obtiene la hora actual del reloj.
  * @param[in] clock Puntero a la instancia del reloj de la cual se quiere leer la hora.
  * @param[out] current_time Arreglo de 6 bytes donde se copiará la hora actual en formato BCD.
- * @return true si la hora devuelta es válida (ya fue configurada previamente).
- * @return false si la hora es inválida (estado por defecto tras la inicialización).
+ * @return true hora configurada.
  */
 
 bool GetCurrentTimeClock(clock_t clock, hora_t current_time);
@@ -128,7 +126,7 @@ bool SetupAlarmClock(clock_t clock, const hora_t alarm);
  * @brief Obtiene la hora configurada en la alarma.
  * @param[in] clock Puntero a la instancia del reloj.
  * @param[out] alarm_time Arreglo de 6 bytes donde se copiará la hora de la alarma.
- * @return true alarma ativa.
+ * @return true alarma activada.
  */
 
 bool GetAlarmClock(clock_t clock, hora_t alarm);
