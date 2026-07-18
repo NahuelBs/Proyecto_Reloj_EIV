@@ -48,11 +48,14 @@ typedef enum {
 static board_t board;
 static mode_t mode;
 static clock_t clock;
-static const uint8_t MINUTES_LIMIT[] = {6, 0};
-static const uint8_t HOURS_LIMIT[] = {2, 4};
+static uint8_t alarm[6];
 static uint8_t display_digits[6];
-static volatile bool alarm_sounding = false;
+static const uint8_t HOURS_LIMIT[] = {2, 4};
+static const uint8_t MINUTES_LIMIT[] = {6, 0};
 static bool flag_startup = true;
+static bool flag_startup_alarm = true;
+static bool alarm_configured;
+static volatile bool alarm_sounding = false;
 static volatile bool evt_timeout = false;
 static volatile bool alarm_enabled_changed = false;
 static volatile bool evt_f1_3seg = false;
@@ -101,11 +104,16 @@ void IncrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
 
 void DecrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
     if (numero[1] == 0) {
-        numero[1] = 9;
         if (numero[0] == 0) {
-            numero[0] = limite[0];
-            numero[1] = limite[1] - 1;
+            if (limite[1] == 0) {
+                numero[0] = limite[0] - 1;
+                numero[1] = 9;
+            } else {
+                numero[0] = limite[0];
+                numero[1] = limite[1] - 1;
+            }
         } else {
+            numero[1] = 9;
             numero[0]--;
         }
     } else {
@@ -136,11 +144,21 @@ void UpdateDisplay(void){
             flag_startup = false; 
         }  
     }
+    if(mode == MODO_MINUTOS_ALARMA){
+        if(flag_startup_alarm){
+            uint8_t temp[6] = {0, 0, 0, 0, 0, 0};
+            DisplayWriteBCD(board->DISPLAY, temp, sizeof(temp));
+            flag_startup_alarm = false; 
+        }  
+    }
     if(mode == MODO_NORMAL){
         GetCurrentTimeClock(clock, display_digits);
         DisplayWriteBCD(board->DISPLAY,display_digits,sizeof(display_digits));
         if(alarm_enabled_dot){
             DisplayToggleDots(board->DISPLAY, 3, 3);
+        }
+        if(alarm_sounding){
+            DisplayToggleDots(board->DISPLAY, 0, 0);
         }
     }
 }
@@ -150,12 +168,11 @@ void AlarmOn(void){
     DisplayToggleDots(board->DISPLAY, 0, 0);  
 }
 
-void SnoozeAlarm(void) {
-    uint8_t alarm_time[6];          
+void SnoozeAlarm(void) {         
     for (int i = 0; i < 5; i++) {
-        IncrementBCD(&alarm_time[2], MINUTES_LIMIT);  
+        IncrementBCD(&alarm[2], MINUTES_LIMIT);  
     }
-    SetupAlarmClock(clock, alarm_time);        
+    SetupAlarmClock(clock, alarm);        
 }
 
 /* === Public function implementation ========================================================== */
@@ -164,7 +181,7 @@ int main(void) {
     
     board = CreateBoard();
     
-    clock = CreateClock(10, AlarmOn);
+    clock = CreateClock(1000, AlarmOn);
     
     ChangeMode(MODO_SIN_AJUSTAR);
     
@@ -187,6 +204,9 @@ int main(void) {
             if (evt_f2_3seg){
                 evt_f2_3seg = false;
                 ChangeMode(MODO_MINUTOS_ALARMA);
+                if(GetAlarmClock(clock, alarm)){
+                    DisplayWriteBCD(board->DISPLAY, alarm, sizeof(alarm));
+                }
             }
 
             switch(mode){
@@ -206,7 +226,11 @@ int main(void) {
                         ChangeMode(MODO_HORAS);
                     }
                     if (HasActivatedDigitalInput(board->CANCELAR)) {
-                        ChangeMode(MODO_SIN_AJUSTAR);
+                         if (GetCurrentTimeClock(clock, display_digits)) {   
+                            ChangeMode(MODO_NORMAL);
+                        } else {
+                            ChangeMode(MODO_SIN_AJUSTAR);
+                        }
                     }
                     break;
                 case MODO_HORAS:
@@ -240,15 +264,15 @@ int main(void) {
                             alarm_sounding = false;
                         }
                     } else {
-                        if (HasActivatedDigitalInput(board->ACEPTAR)) {
-                            uint8_t temp[6];
-                            if (!GetAlarmClock(clock, temp)) {
-                                ToggleAlarmClock(clock);
+                        if(alarm_configured){
+                            if (HasActivatedDigitalInput(board->ACEPTAR)) {
+                                if (!GetAlarmClock(clock, alarm)) {
+                                    ToggleAlarmClock(clock);
+                                }
                             }
                         }
                         if (HasActivatedDigitalInput(board->CANCELAR)) {
-                            uint8_t temp[6];
-                            if (GetAlarmClock(clock, temp)) {
+                            if (GetAlarmClock(clock, alarm)) {
                                 ToggleAlarmClock(clock);
                             }
                         }
@@ -256,12 +280,12 @@ int main(void) {
                     break;
                 case MODO_MINUTOS_ALARMA:
                     if(HasActivatedDigitalInput(board->F4)){
-                        IncrementBCD(&display_digits[2],MINUTES_LIMIT);
-                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                        IncrementBCD(&alarm[2],MINUTES_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, alarm, sizeof(alarm));
                     }
                     if(HasActivatedDigitalInput(board->F3)){
-                        DecrementBCD(&display_digits[2],MINUTES_LIMIT);
-                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                        DecrementBCD(&alarm[2],MINUTES_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, alarm, sizeof(alarm));
                     }
                     if(HasActivatedDigitalInput(board->ACEPTAR)){
                         ChangeMode(MODO_HORAS_ALARMA);
@@ -272,15 +296,15 @@ int main(void) {
                     break;
                 case MODO_HORAS_ALARMA:
                     if(HasActivatedDigitalInput(board->F4)){
-                        IncrementBCD(&display_digits[0],HOURS_LIMIT);
-                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                        IncrementBCD(&alarm[0],HOURS_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, alarm, sizeof(alarm));
                     }
                     if(HasActivatedDigitalInput(board->F3)){
-                        DecrementBCD(&display_digits[0],HOURS_LIMIT);
-                        DisplayWriteBCD(board->DISPLAY, display_digits, sizeof(display_digits));
+                        DecrementBCD(&alarm[0],HOURS_LIMIT);
+                        DisplayWriteBCD(board->DISPLAY, alarm, sizeof(alarm));
                     }
                     if(HasActivatedDigitalInput(board->ACEPTAR)){
-                        SetupAlarmClock(clock, display_digits);
+                        alarm_configured = SetupAlarmClock(clock, alarm);
                         ChangeMode(MODO_NORMAL);
                     }
                     if (HasActivatedDigitalInput(board->CANCELAR)) {
@@ -299,10 +323,10 @@ void SysTick_Handler(void) {
     static uint16_t f2_hold_count = 0;
     static uint16_t f1_release_count;
     static uint16_t f2_release_count;
+    static uint16_t inactivity_count = 0;
+    static uint8_t alarm_status[6];
     static bool f1_action_fired = false;
     static bool f2_action_fired = false;
-    static uint8_t alarm_temp[6];
-    static uint16_t inactivity_count = 0;
     bool setting = (mode == MODO_MINUTOS || mode == MODO_HORAS || mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA);
 
     DisplayRefresh(board->DISPLAY);
@@ -365,7 +389,7 @@ void SysTick_Handler(void) {
         inactivity_count = 0;
     }
 
-    bool alarm_enabled = GetAlarmClock(clock, alarm_temp);
+    bool alarm_enabled = GetAlarmClock(clock, alarm_status);
 
     if (alarm_enabled != alarm_enabled_dot){
         alarm_enabled_dot = alarm_enabled;
