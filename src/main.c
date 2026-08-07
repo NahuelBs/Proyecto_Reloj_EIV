@@ -22,7 +22,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 #include <stdio.h>
 #include "bsp.h"
-#include "reloj.h"
+#include "clock.h"
 
 /* === Macros definitions ====================================================================== */
 
@@ -165,15 +165,9 @@ void UpdateDisplay(void){
 
 void AlarmOn(void){
     alarm_sounding = true;
-    DisplayToggleDots(board->DISPLAY, 0, 0);  
+    ActivateDigitalOutput(board->LED); 
 }
 
-void SnoozeAlarm(void) {         
-    for (int i = 0; i < 5; i++) {
-        IncrementBCD(&alarm[2], MINUTES_LIMIT);  
-    }
-    SetupAlarmClock(clock, alarm);        
-}
 
 /* === Public function implementation ========================================================== */
 
@@ -257,11 +251,13 @@ int main(void) {
                 case MODO_NORMAL:
                     if (alarm_sounding) {
                         if (HasActivatedDigitalInput(board->ACEPTAR)) {
-                            SnoozeAlarm();
+                            SnoozeAlarm(clock);
                             alarm_sounding = false;
+                            DeactivateDigitalOutput(board->LED);
                         }
                         if (HasActivatedDigitalInput(board->CANCELAR)) {
                             alarm_sounding = false;
+                            DeactivateDigitalOutput(board->LED);
                         }
                     } else {
                         if(alarm_configured){

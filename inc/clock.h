@@ -9,7 +9,7 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
-/** * @file reloj.h
+/** * @file clock.h
  * @brief Interfaz de la biblioteca del reloj despertador.
  */
 
@@ -20,8 +20,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  *
 *************************************************************************************************/
 
-#ifndef RELOJ_H
-#define RELOJ_H
+#ifndef CLOCK_H
+#define CLOCK_H
 
 /* === Headers files inclusions ================================================================ */
 
@@ -140,6 +140,13 @@ bool GetAlarmClock(clock_t clock, hora_t alarm);
 
 bool ToggleAlarmClock(clock_t clock);
 
+/**
+ * @brief Pospone la alarma 5 minutos.
+ * @param[in] clock Puntero a la instancia del reloj.
+ */
+
+void SnoozeAlarm(clock_t clock);
+
 /* === Private function implementation ========================================================= */
 
 /* === Public function implementation ========================================================== */
@@ -152,4 +159,4 @@ bool ToggleAlarmClock(clock_t clock);
 }
 #endif
 /** @} End of module definition for doxygen */
-#endif /* RELOJ_H */
+#endif /* CLOCK_H */

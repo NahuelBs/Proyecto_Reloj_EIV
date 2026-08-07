@@ -32,7 +32,7 @@ static void DigitsInit(void);
 
 static void SegmentsInit(void);
 
-static void BuzzerInit(void);
+static void LedInit(void);
 
 static void KeysInit(void);
 
@@ -120,9 +120,9 @@ static void SegmentsInit(void) {
  * Función encargada de inicializar el buzzer
  */
 
-static void BuzzerInit(void) {
-    Chip_SCU_PinMuxSet(BUZZER_PORT, BUZZER_PIN, SCU_MODE_INBUFF_EN | SCU_MODE_INACT | BUZZER_FUNC);
-    board.BUZZER = CreateDigitalOutput(BUZZER_GPIO, BUZZER_BIT, false);
+static void LedInit(void) {
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, LED_1_PORT, LED_1_PIN, true);
+    board.LED = CreateDigitalOutput(LED_1_GPIO, LED_1_BIT, false);
 }
 
 /**
@@ -181,7 +181,7 @@ board_t CreateBoard(void) {
     BoardSetup();
     DigitsInit();
     SegmentsInit();
-    BuzzerInit();
+    LedInit();
     KeysInit();
     SysTick_Init(1000);
 

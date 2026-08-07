@@ -167,11 +167,11 @@ extern "C" {
 #define KEY_CANCEL_GPIO 5
 #define KEY_CANCEL_BIT  8
 
-#define BUZZER_PORT 2
-#define BUZZER_PIN  2
-#define BUZZER_FUNC SCU_MODE_FUNC4
-#define BUZZER_GPIO 5
-#define BUZZER_BIT  2
+#define LED_1_PORT 2
+#define LED_1_PIN  10
+#define LED_1_FUNC SCU_MODE_FUNC0
+#define LED_1_GPIO 0
+#define LED_1_BIT  14
 
 /* === Public data type declarations =============================================================================== */
 

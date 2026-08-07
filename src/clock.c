@@ -9,7 +9,7 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
-/** * @file reloj.c
+/** * @file clock.c
  * @brief TDD - Test Driven Development.
  */
 
@@ -18,7 +18,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  */
 /* === Headers files inclusions ================================================================ */
 
-#include "reloj.h"
+#include "clock.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -34,6 +34,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #define HOURS_PER_DAY        24U
 /** @brief Cantidad total de segundos en un día */
 #define SECONDS_PER_DAY      (HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE)
+/** @brief Cantidad de minutos que la alarma se pospone */
+#define SNOOZE_TIME_SECONDS   (5 * SECONDS_PER_MINUTE)
 
 /* === Private data type declarations ========================================================== */
 
@@ -42,9 +44,11 @@ struct clock_s{
     uint32_t ticks_count;           /**< contador de flancos internos */
     uint32_t ticks_per_seconds;     /**< flancos necesarios para avanzar*/
     uint32_t alarm;                 /**< guarda la hora en la que debe sonar la alarma */
+    uint32_t snoozed_alarm;         /**< guarda la hora de la alarma pospuesta*/ 
     clock_event_t alarm_handler;    /**< puntero a funcion utilizado para avisarle al reloj que la alarma esta sonando*/
     bool time_is_valid;             /**< guarda si la hora es valida o no*/
     bool alarm_enabled;             /**< indica si la alarma esta activa o no */
+    bool snoozed;                   /**< indica que la alarma fue pospuesta 5 min*/ 
 };
 
 
@@ -131,10 +135,17 @@ void NewTickClock(clock_t self){
         self->current_time = 0;
     }
     if (self->alarm_enabled) {
-        if (self->current_time == self->alarm) {
-            self->alarm_handler();
-        }
-    }  
+        if(self->snoozed){
+            if (self->current_time == self->snoozed_alarm) {
+                self->alarm_handler();
+                self->snoozed = false;
+            }
+        }else{
+            if (self->current_time == self->alarm) {
+                self->alarm_handler();
+            }
+        }  
+    }
 }
 
 bool SetupAlarmClock(clock_t self, const hora_t alarm){
@@ -150,6 +161,15 @@ bool GetAlarmClock(clock_t self, hora_t alarm){
 bool ToggleAlarmClock(clock_t self){
     self->alarm_enabled = !self->alarm_enabled;
     return self->alarm_enabled;
+}
+
+void SnoozeAlarm(clock_t self) {
+    self->snoozed = true;
+    self->snoozed_alarm = self->current_time + SNOOZE_TIME_SECONDS;
+    
+    if (self->snoozed_alarm >= SECONDS_PER_DAY) {
+        self->snoozed_alarm -= SECONDS_PER_DAY;
+    }
 }
 
 /* === End of documentation ==================================================================== */
