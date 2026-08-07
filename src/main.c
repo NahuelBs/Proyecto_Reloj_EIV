@@ -10,12 +10,12 @@ owner.
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
 /** * @file main.c
- * @brief Aplicación principal: Reloj Despertador con EDU-CIAA-NXP.
+ * @brief Aplicación principal: Reloj Despertador con FreeRTOS en EDU-CIAA-NXP.
  */
 
-/** * @addtogroup LAB8 Laboratorio 8 - Implementación de Reloj Despertador
- * @brief Integración de la Capa de Abstracción de Hardware (BSP) y la 
- * librería de gestión de tiempo/alarma para el funcionamiento del reloj.
+/** * @addtogroup TFI Trabajo Final Integrador - Reloj Despertador con FreeRTOS
+ * @brief Implementación del sistema operativo de tiempo real FreeRTOS 
+ * en el reloj despertador sobre la placa EDU-CIAA-NXP.
  * @{
  */
 /* === Headers files inclusions =============================================================== */
