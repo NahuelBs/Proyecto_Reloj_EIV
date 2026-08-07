@@ -16,13 +16,13 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /** * @addtogroup LAB6
  * @{ 
  */
-/* === Headers files inclusions =================================================================== */
+/* === Headers files inclusions ================================================================ */
 
 #include "bsp.h"
 #include "poncho.h"
 #include "board.h"
 
-/* === Private Macros definitions ==================================================================*/
+/* === Private Macros definitions ============================================================== */
 
 /* === Public data type declarations =========================================================== */
 

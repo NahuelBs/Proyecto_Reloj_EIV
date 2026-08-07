@@ -23,6 +23,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include <stdio.h>
 #include "bsp.h"
 #include "clock.h"
+#include "keys.h"
+#include "FreeRTOS.h"
 
 /* === Macros definitions ====================================================================== */
 
@@ -58,8 +60,6 @@ static bool alarm_configured;
 static volatile bool alarm_sounding = false;
 static volatile bool evt_timeout = false;
 static volatile bool alarm_enabled_changed = false;
-static volatile bool evt_f1_3seg = false;
-static volatile bool evt_f2_3seg = false;
 static volatile bool alarm_enabled_dot = false;
 
 /* === Private function implementation ========================================================= */
@@ -172,12 +172,42 @@ void AlarmOn(void){
 /* === Public function implementation ========================================================== */
 
 int main(void) {
+
+    static struct key_task_args_s f1;
+    static struct key_task_args_s f2;
+    static struct key_task_args_s f3;
+    static struct key_task_args_s f4;
+    EventGroupHandle_t keys_events;
     
     board = CreateBoard();
+
+    keys_events = xEventGroupCreate();
     
     clock = CreateClock(1000, AlarmOn);
     
     ChangeMode(MODO_SIN_AJUSTAR);
+
+    f1.event_group = keys_events;
+    f1.event_bit = KEY_F1;
+    f1.input = board->F1;
+    xTaskCreate(KeyLongPressTask, "F1", KEY_TASK_STACK_SIZE, &f1, tskIDLE_PRIORITY + 1, NULL);
+
+    f2.event_group = keys_events;
+    f2.event_bit = KEY_F2;
+    f2.input = board->F2;
+    xTaskCreate(KeyLongPressTask, "F2", KEY_TASK_STACK_SIZE, &f2, tskIDLE_PRIORITY + 1, NULL);
+
+    f3.event_group = keys_events;
+    f3.event_bit = KEY_F3;
+    f3.input = board->F3;
+    xTaskCreate(KeyTask, "F3", KEY_TASK_STACK_SIZE, &f3, tskIDLE_PRIORITY + 1, NULL);
+
+    f4.event_group = keys_events;
+    f4.event_bit = KEY_F4;
+    f4.input = board->F4;
+    xTaskCreate(KeyTask, "F4", KEY_TASK_STACK_SIZE, &f4, tskIDLE_PRIORITY + 1, NULL);
+
+    vTaskStartScheduler();
     
     while(true){
 
@@ -187,19 +217,6 @@ int main(void) {
                     ChangeMode(GetCurrentTimeClock(clock, display_digits) ? MODO_NORMAL : MODO_SIN_AJUSTAR);
                 } else if (mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
                     ChangeMode(MODO_NORMAL);
-                }
-            }
-
-            if (evt_f1_3seg){
-                evt_f1_3seg = false;
-                ChangeMode(MODO_MINUTOS);
-            }
-        
-            if (evt_f2_3seg){
-                evt_f2_3seg = false;
-                ChangeMode(MODO_MINUTOS_ALARMA);
-                if(GetAlarmClock(clock, alarm)){
-                    DisplayWriteBCD(board->DISPLAY, alarm, sizeof(alarm));
                 }
             }
 
@@ -315,14 +332,8 @@ int main(void) {
 
 void SysTick_Handler(void) {
     static uint16_t count = 0;
-    static uint16_t f1_hold_count = 0;
-    static uint16_t f2_hold_count = 0;
-    static uint16_t f1_release_count;
-    static uint16_t f2_release_count;
     static uint16_t inactivity_count = 0;
     static uint8_t alarm_status[6];
-    static bool f1_action_fired = false;
-    static bool f2_action_fired = false;
     bool setting = (mode == MODO_MINUTOS || mode == MODO_HORAS || mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA);
 
     DisplayRefresh(board->DISPLAY);
@@ -339,36 +350,6 @@ void SysTick_Handler(void) {
     }
 
     count = (count + 1) % 1000;
-
-    if (GetStateDigitalInput(board->F1)){
-        f1_hold_count++;
-        f1_release_count = 0;
-        if (f1_hold_count >= 3000 && !f1_action_fired) {
-            f1_action_fired = true;
-            evt_f1_3seg = true;
-        }
-    } else {
-        f1_release_count++;
-        if(f1_release_count > 50){  //50 ms de tolerancia al rebote
-            f1_hold_count = 0;
-            f1_action_fired = false;
-        }
-    }
-
-    if (GetStateDigitalInput(board->F2)){        
-        f2_hold_count++;
-        f2_release_count = 0;
-        if (f2_hold_count >= 3000 && !f2_action_fired) {
-            f2_action_fired = true;
-            evt_f2_3seg = true;
-        }
-    }else{
-        f2_release_count++;
-        if(f2_release_count > 50){
-            f2_hold_count = 0;
-            f2_action_fired = false;
-        }
-    }
 
     if (setting) {
         if (GetStateDigitalInput(board->F3) || GetStateDigitalInput(board->F4) || 
