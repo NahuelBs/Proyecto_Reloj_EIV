@@ -9,25 +9,29 @@ owner.
 
 SPDX-License-Identifier: LicenseRef-Proprietary
 *************************************************************************************************/
-/** * @file keys.h
- * @brief Interfaz de la biblioteca de gestión de teclas del reloj despertador.
+/** * @file logic.h
+ * @brief Interfaz de la biblioteca de gestión de la logica del reloj despertador.
  */
 
 /** * @addtogroup TFI Trabajo Final Integrador - Reloj Despertador con FreeRTOS
- * @brief Módulo encargado de monitorizar las entradas digitales asociadas a las
- * teclas de la placa y disparar eventos.
+ * @brief Módulo encargado de interpretar los eventos de teclas y decidir el
+ * comportamiento del reloj según el modo actual, coordinando el reloj interno,
+ * la alarma y el contenido a mostrar en el display
  * @{
  *
 *************************************************************************************************/
 
-#ifndef KEYS_H
-#define KEYS_H
+#ifndef LOGIC_H
+#define LOGIC_H
 
 /* === Headers files inclusions ================================================================ */
 
 #include "FreeRTOS.h"
+#include "queue.h"
 #include "event_groups.h"
+#include "clock.h"
 #include "bsp.h"
+#include <stdbool.h>
 
 /* === Header C++ ============================================================================== */
 
@@ -37,56 +41,40 @@ extern "C" {
 
 /* === Macros definitions ====================================================================== */
 
-/** Evento de la tecla F1  */
-#define KEY_F1          ((EventBits_t)(1 << 0))
-
-/** Evento de la tecla F2  */
-#define KEY_F2          ((EventBits_t)(1 << 1))
-
-/** Evento de la tecla F3 */
-#define KEY_F3          ((EventBits_t)(1 << 2))
-
-/** Evento de la tecla F4 */
-#define KEY_F4          ((EventBits_t)(1 << 3))
-
-/** Evento de la tecla ACEPTAR  */
-#define KEY_ACEPTAR     ((EventBits_t)(1 << 4))
-
-/** Evento de la tecla CANCELAR */
-#define KEY_CANCELAR    ((EventBits_t)(1 << 5))
-
-/** Tamaño de pila de las tareas de teclado */
-#define KEY_TASK_STACK_SIZE 256
+/** Tamaño de pila de la logica del reloj */
+#define LOGIC_TASK_STACK_SIZE 512
 
 /* === Public data type declarations =========================================================== */
 
 /**
- * @brief Parámetros de una tarea que publica eventos ante pulsaciones de tecla
+ * @brief 
  */
-typedef struct key_task_args_s {
-    EventGroupHandle_t event_keys;  /**< Grupo de eventos compartido */
-    EventBits_t event_bit;          /**< Bit que se activa al pulsar la tecla */
-    digital_input_t input;          /**< Entrada digital asociada a la tecla */
-} * key_task_args_t;
-
+typedef struct logic_task_args_s {
+    EventGroupHandle_t event_keys;      /**< Grupo de eventos de las teclas */
+    EventBits_t F1;                     /**< Bit tecla F1 */
+    EventBits_t F2;                     /**< Bit tecla F2 */
+    EventBits_t F3;                     /**< Bit tecla F3 */
+    EventBits_t F4;                     /**< Bit tecla F4 */
+    EventBits_t ACEPTAR;                /**< Bit tecla ACEPTAR */
+    EventBits_t CANCELAR;               /**< Bit tecla CANCELAR */
+    QueueHandle_t dot;                  /**< */
+    QueueHandle_t digit;                /**< */
+    QueueHandle_t alarm;                /**< */
+    QueueHandle_t flash;                /**< */
+    clock_t clock;                      /**< */
+    digital_output_t output;
+} * logic_task_args_t;
 
 /* === Private function declarations =========================================================== */
 
 /* === Public function declarations ============================================================ */
 
 /**
- * @brief Espera la pulsación de una tecla y publica el evento configurado
+ * @brief 
  *
- * @param args Puntero a @ref key_task_args_s
+ * @param args Puntero a @ref logic_task_args_s
  */
-void KeyTask(void * args);
-
-/**
- * @brief Espera que se mantenga pulsado por 3 segundos una tecla y publica el evento configurado
- *
- * @param args Puntero a @ref key_task_args_s
- */
-void KeyLongPressTask(void * pointer);
+void LogicTask(void * args);
 
 /* === Private function implementation ========================================================= */
 
@@ -100,4 +88,4 @@ void KeyLongPressTask(void * pointer);
 }
 #endif
 /** @} End of module definition for doxygen */
-#endif /* KEYS_H */
+#endif /* LOGIC_H */

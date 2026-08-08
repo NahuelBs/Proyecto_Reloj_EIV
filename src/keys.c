@@ -56,7 +56,7 @@ void KeyTask(void * pointer) {
         if (!GetStateDigitalInput(args->input)) {
             continue;
         }
-        xEventGroupSetBits(args->event_group, args->event_bit);
+        xEventGroupSetBits(args->event_keys, args->event_bit);
 
         while (GetStateDigitalInput(args->input)) {
             vTaskDelay(pdMS_TO_TICKS(KEY_DELAY_MS));
@@ -80,7 +80,7 @@ void KeyLongPressTask(void * pointer) {
         hold_count++;
 
         if (hold_count >= LONG_PRESS_COUNT && !event_sent) {
-            xEventGroupSetBits(args->event_group, args->event_bit);
+            xEventGroupSetBits(args->event_keys, args->event_bit);
             event_sent = true;
         }
         vTaskDelay(pdMS_TO_TICKS(KEY_DELAY_MS));

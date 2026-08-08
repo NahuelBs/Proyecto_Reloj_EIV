@@ -93,5 +93,31 @@ void UpdateDotsTask(void * pointer) {
     }
 }
 
+void UpdateFlashTask(void * pointer) {
+    refresh_task_args_t args = pointer;
+    flash_mode_t flash_mode;
+
+    while (true) {
+        xQueueReceive(args->data, &flash_mode, portMAX_DELAY);
+
+        if (xSemaphoreTake(args->mutex, portMAX_DELAY) == pdTRUE) {
+            switch (flash_mode) {
+                case FLASH_ALL:
+                    DisplayFlashDigits(args->display, 0, 3, 500);
+                    break;
+                case FLASH_MINUTES:
+                    DisplayFlashDigits(args->display, 2, 3, 250);
+                    break;
+                case FLASH_HOURS:
+                    DisplayFlashDigits(args->display, 0, 1, 250);
+                    break;
+                case FLASH_NONE:
+                    DisplayFlashDigits(args->display, 0, 3, 0);
+                    break;
+            }
+            xSemaphoreGive(args->mutex);
+        }
+    }
+}
 /* === End of documentation ==================================================================== */
 /** @} End of module definition for doxygen */

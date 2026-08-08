@@ -25,7 +25,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Headers files inclusions ================================================================ */
 
 #include "FreeRTOS.h"
-#include "bsp.h"
+#include "task.h"
+#include "clock.h"
 
 /* === Header C++ ============================================================================== */
 

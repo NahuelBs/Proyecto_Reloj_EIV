@@ -53,6 +53,16 @@ extern "C" {
 /* === Public data type declarations =========================================================== */
 
 /**
+ * @brief 
+ */
+typedef enum {
+    FLASH_ALL,
+    FLASH_MINUTES,
+    FLASH_HOURS,
+    FLASH_NONE
+} flash_mode_t;
+
+/**
  * @brief Parámetros de una tarea que actualiza un dato en pantalla
  */
 typedef struct refresh_task_args_s {
@@ -98,6 +108,13 @@ void UpdateDigitsTask(void * args);
  * @param args Puntero a @ref refresh_task_args_s
  */
 void UpdateDotsTask(void * args);
+
+/**
+ * @brief 
+ *
+ * @param args Puntero a @ref 
+ */
+void UpdateFlashTask(void * args);
 
 /* === End of conditional blocks =============================================================== */
 

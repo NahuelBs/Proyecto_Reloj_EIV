@@ -36,8 +36,6 @@ static void LedInit(void);
 
 static void KeysInit(void);
 
-static void SysTick_Init(uint32_t ticks);
-
 /**
  * Función encargada de cambiar el estado de cada segmento según el número a mostrar
  */
@@ -149,11 +147,6 @@ static void KeysInit(void) {
     board.F4 = CreateDigitalInput(KEY_F4_GPIO, KEY_F4_BIT, false);
 }
 
-static void SysTick_Init(uint32_t ticks){
-    SystemCoreClockUpdate();
-    SysTick_Config(SystemCoreClock/ticks);
-}
-
 /**
  * Función encargada de cambiar el estado de cada segmento según el número a mostrar
  */
@@ -183,7 +176,6 @@ board_t CreateBoard(void) {
     SegmentsInit();
     LedInit();
     KeysInit();
-    SysTick_Init(1000);
 
     board.DISPLAY = DisplayCreate(4, &(struct display_driver_s){  //4 display por placa 
         .UpdateDigits = UpdateDigits,
