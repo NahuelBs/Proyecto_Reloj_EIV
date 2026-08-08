@@ -24,6 +24,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include "bsp.h"
 #include "clock.h"
 #include "keys.h"
+#include "display.h"
 #include "FreeRTOS.h"
 
 /* === Macros definitions ====================================================================== */
@@ -59,7 +60,7 @@ static bool flag_startup_alarm = true;
 static bool alarm_configured;
 static volatile bool alarm_sounding = false;
 static volatile bool evt_timeout = false;
-static volatile bool alarm_enabled_changed = false;
+static volatile bool alarm_enabled_changed= false;
 static volatile bool alarm_enabled_dot = false;
 
 /* === Private function implementation ========================================================= */
@@ -121,21 +122,6 @@ void DecrementBCD(uint8_t numero[2], const uint8_t limite[2]) {
     }
 }
 
-void UpdateDot(void){
-    if(mode == MODO_SIN_AJUSTAR || mode == MODO_NORMAL){
-        DisplayToggleDots(board->DISPLAY, 1, 1);
-    }
-    if(mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
-        DisplayToggleDots(board->DISPLAY, 0, 3);
-    }
-    if(mode == MODO_NORMAL){
-        if(alarm_enabled_changed){
-            alarm_enabled_changed = false;
-            DisplayToggleDots(board->DISPLAY, 3, 3);
-        }
-    }
-}
-
 void UpdateDisplay(void){
     if(mode == MODO_SIN_AJUSTAR){
         if(flag_startup){
@@ -177,11 +163,22 @@ int main(void) {
     static struct key_task_args_s f2;
     static struct key_task_args_s f3;
     static struct key_task_args_s f4;
+    static struct key_task_args_s ACEPTAR;
+    static struct key_task_args_s CANCELAR;
+    static struct display_task_args_s display_args;
+    static struct refresh_task_args_s digits_args;
+    static struct refresh_task_args_s dots_args;
     EventGroupHandle_t keys_events;
+    QueueHandle_t digits_queue;
+    QueueHandle_t dots_queue;
+    SemaphoreHandle_t screen_mutex;
     
     board = CreateBoard();
 
     keys_events = xEventGroupCreate();
+    digits_queue = xQueueCreate(3, 6 * sizeof(uint8_t));
+    dots_queue = xQueueCreate(3, sizeof(uint8_t));
+    screen_mutex = xSemaphoreCreateMutex();
     
     clock = CreateClock(1000, AlarmOn);
     
@@ -206,6 +203,31 @@ int main(void) {
     f4.event_bit = KEY_F4;
     f4.input = board->F4;
     xTaskCreate(KeyTask, "F4", KEY_TASK_STACK_SIZE, &f4, tskIDLE_PRIORITY + 1, NULL);
+
+    ACEPTAR.event_group = keys_events;
+    ACEPTAR.event_bit = KEY_ACEPTAR;
+    ACEPTAR.input = board->ACEPTAR;
+    xTaskCreate(KeyTask, "ACEPTAR", KEY_TASK_STACK_SIZE, &ACEPTAR, tskIDLE_PRIORITY + 1, NULL);
+
+    CANCELAR.event_group = keys_events;
+    CANCELAR.event_bit = KEY_CANCELAR;
+    CANCELAR.input = board->CANCELAR;
+    xTaskCreate(KeyTask, "CANCELAR", KEY_TASK_STACK_SIZE, &CANCELAR, tskIDLE_PRIORITY + 1, NULL);
+
+    display_args.mutex = screen_mutex;
+    display_args.display = board->DISPLAY;
+    xTaskCreate(RefreshDisplayTask, "Display", REFRESH_TASK_STACK_SIZE, &display_args, tskIDLE_PRIORITY + 3, NULL);
+
+    digits_args.data = digits_queue;
+    digits_args.mutex = screen_mutex;
+    digits_args.display = board->DISPLAY;
+    xTaskCreate(UpdateDisplay, "Update Display", REFRESH_TASK_STACK_SIZE, &digits_args, tskIDLE_PRIORITY + 2, NULL);
+
+    dots_args.data = dots_queue;
+    dots_args.mutex = screen_mutex;
+    dots_args.display = board->DISPLAY;
+    xTaskCreate(UpdateDotsTask, "Update Dots", REFRESH_TASK_STACK_SIZE, &dots_args, tskIDLE_PRIORITY + 2, NULL);
+
 
     vTaskStartScheduler();
     
@@ -336,18 +358,7 @@ void SysTick_Handler(void) {
     static uint8_t alarm_status[6];
     bool setting = (mode == MODO_MINUTOS || mode == MODO_HORAS || mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA);
 
-    DisplayRefresh(board->DISPLAY);
     NewTickClock(clock);
-
-    if (count == 4) { // 4ms de desfasaje para sincronizar con el primer ciclo completo de multiplexado
-        UpdateDot();
-    }
-
-    if (count == 0) { 
-        UpdateDisplay();
-    }else if(count == 500){
-        UpdateDisplay();
-    }
 
     count = (count + 1) % 1000;
 
