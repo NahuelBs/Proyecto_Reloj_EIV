@@ -23,6 +23,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 #include <stdio.h>
 #include "bsp.h"
 #include "clock.h"
+#include "time.h"
 #include "keys.h"
 #include "display.h"
 #include "FreeRTOS.h"
@@ -184,6 +185,8 @@ int main(void) {
     
     ChangeMode(MODO_SIN_AJUSTAR);
 
+    xTaskCreate(TimeTask, "Time", TIME_TASK_STACK_SIZE, clock, tskIDLE_PRIORITY + 4, NULL);
+
     f1.event_group = keys_events;
     f1.event_bit = KEY_F1;
     f1.input = board->F1;
@@ -216,17 +219,17 @@ int main(void) {
 
     display_args.mutex = screen_mutex;
     display_args.display = board->DISPLAY;
-    xTaskCreate(RefreshDisplayTask, "Display", REFRESH_TASK_STACK_SIZE, &display_args, tskIDLE_PRIORITY + 3, NULL);
+    xTaskCreate(RefreshDisplayTask, "Display", DISPLAY_TASK_STACK_SIZE, &display_args, tskIDLE_PRIORITY + 3, NULL);
 
     digits_args.data = digits_queue;
     digits_args.mutex = screen_mutex;
     digits_args.display = board->DISPLAY;
-    xTaskCreate(UpdateDisplay, "Update Display", REFRESH_TASK_STACK_SIZE, &digits_args, tskIDLE_PRIORITY + 2, NULL);
+    xTaskCreate(UpdateDisplay, "Update Display", DISPLAY_TASK_STACK_SIZE, &digits_args, tskIDLE_PRIORITY + 2, NULL);
 
     dots_args.data = dots_queue;
     dots_args.mutex = screen_mutex;
     dots_args.display = board->DISPLAY;
-    xTaskCreate(UpdateDotsTask, "Update Dots", REFRESH_TASK_STACK_SIZE, &dots_args, tskIDLE_PRIORITY + 2, NULL);
+    xTaskCreate(UpdateDotsTask, "Update Dots", DISPLAY_TASK_STACK_SIZE, &dots_args, tskIDLE_PRIORITY + 2, NULL);
 
 
     vTaskStartScheduler();

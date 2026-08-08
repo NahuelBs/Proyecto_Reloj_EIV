@@ -47,8 +47,8 @@ extern "C" {
 /** Mascara para habilitar el parpadeo de todos los puntos del display */
 #define DOT_ALL_BLINK      (1 << 2)   
 
-/** Tamaño de pila de las tareas de refresco de pantalla */
-#define REFRESH_TASK_STACK_SIZE 256
+/** Tamaño de pila de las tareas del display */
+#define DISPLAY_TASK_STACK_SIZE 256
 
 /* === Public data type declarations =========================================================== */
 
