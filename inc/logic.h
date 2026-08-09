@@ -42,12 +42,12 @@ extern "C" {
 /* === Macros definitions ====================================================================== */
 
 /** Tamaño de pila de la logica del reloj */
-#define LOGIC_TASK_STACK_SIZE 512
+#define LOGIC_TASK_STACK_SIZE 256
 
 /* === Public data type declarations =========================================================== */
 
 /**
- * @brief 
+ * @brief Parámetros de la tarea de gestión de la lógica del reloj.
  */
 typedef struct logic_task_args_s {
     EventGroupHandle_t event_keys;      /**< Grupo de eventos de las teclas */
@@ -57,12 +57,12 @@ typedef struct logic_task_args_s {
     EventBits_t F4;                     /**< Bit tecla F4 */
     EventBits_t ACEPTAR;                /**< Bit tecla ACEPTAR */
     EventBits_t CANCELAR;               /**< Bit tecla CANCELAR */
-    QueueHandle_t dot;                  /**< */
-    QueueHandle_t digit;                /**< */
-    QueueHandle_t alarm;                /**< */
-    QueueHandle_t flash;                /**< */
-    clock_t clock;                      /**< */
-    digital_output_t output;
+    QueueHandle_t dot;                  /**< Cola para actualizar los puntos del display */
+    QueueHandle_t digit;                /**< Cola para actualizar los dígitos del display */
+    QueueHandle_t alarm;                /**< Cola para notificar el disparo de la alarma */
+    QueueHandle_t flash;                /**< Cola para configurar el parpadeo del display */
+    clock_t clock;                      /**< Instancia del reloj */
+    digital_output_t output;            /**< Salida digital para controlar el indicador de alarma */
 } * logic_task_args_t;
 
 /* === Private function declarations =========================================================== */
@@ -70,11 +70,11 @@ typedef struct logic_task_args_s {
 /* === Public function declarations ============================================================ */
 
 /**
- * @brief 
+ * @brief Ejecuta la tarea encargada de gestionar la lógica del reloj.
  *
- * @param args Puntero a @ref logic_task_args_s
+ * @param pointer Puntero a @ref logic_task_args_s
  */
-void LogicTask(void * args);
+void LogicTask(void * pointer);
 
 /* === Private function implementation ========================================================= */
 

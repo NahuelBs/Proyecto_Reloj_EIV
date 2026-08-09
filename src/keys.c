@@ -31,7 +31,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /** Tiempo de espera para el antirrebote */
 #define DEBOUNCE_TIME_MS     50
 
-/** Cantidad de ciclos necesarios para representar los 3 segundos reales */
+/** Cantidad de ciclos de muestreo necesarios para detectar una pulsación larga */
 #define LONG_PRESS_COUNT (LONG_PRESS_TIME_MS / KEY_DELAY_MS)
 
 /* === Private data type declarations ========================================================== */

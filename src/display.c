@@ -30,9 +30,33 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 /* === Private variable definitions ============================================================ */
 
+static uint8_t dots_mask = 0;
+static bool dot_state[4] = {false};
+
 /* === Public function declarations ============================================================ */
 
 /* === Private function implementation ========================================================= */
+
+static void RestoreDots(display_t display) {
+    for (int index = 0; index < 4; index++) {
+        if (dot_state[index]) {
+            DisplayToggleDots(display, index, index);
+        }
+    }
+}
+
+static void SetDot(display_t display, uint8_t index, bool state) {
+    if (dot_state[index] != state) {
+        DisplayToggleDots(display, index, index);
+        dot_state[index] = state;
+    }
+}
+
+static void SetAllDots(display_t display, bool state) {
+    for (int index = 0; index < 4; index++) {
+        SetDot(display, index, state);
+    }
+}
 
 /* === Public function implementation ========================================================== */
 
@@ -70,6 +94,7 @@ void UpdateDigitsTask(void * pointer) {
 
         if (changed && (xSemaphoreTake(args->mutex, pdMS_TO_TICKS(50)) == pdTRUE)) {
             DisplayWriteBCD(args->display, current_bcd, sizeof(current_bcd));
+            RestoreDots(args->display);
             for (int index = 0; index < 6; index++) {
                 display_bcd[index] = current_bcd[index];
             }
@@ -80,16 +105,30 @@ void UpdateDigitsTask(void * pointer) {
 
 void UpdateDotsTask(void * pointer) {
     refresh_task_args_t args = pointer;
-    uint8_t dots_mask = 0;
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    uint8_t new_mask;      
 
     while (true) {
-        if (xSemaphoreTake(args->mutex, portMAX_DELAY) == pdTRUE) {
-            if (dots_mask & DOT_SECOND_BLINK)   DisplayToggleDots(args->display, 1, 1);
-            if (dots_mask & DOT_FOURTH_BLINK)   DisplayToggleDots(args->display, 3, 3);
-            if (dots_mask & DOT_ALL_BLINK)      DisplayToggleDots(args->display, 0, 3);
-            xSemaphoreGive(args->mutex);
+        if (xQueueReceive(args->data, &new_mask, 0) == pdTRUE) {
+            if (xSemaphoreTake(args->mutex, portMAX_DELAY) == pdTRUE) {
+                if (new_mask & DOT_ALL) {
+                    SetAllDots(args->display, true);
+                } else {
+                    SetDot(args->display, 3, (new_mask & DOT_FOURTH) != 0);
+                    SetDot(args->display, 0, false);
+                    SetDot(args->display, 2, false);
+                }
+                dots_mask = new_mask;
+                xSemaphoreGive(args->mutex);
+            }
         }
-        xQueueReceive(args->data, &dots_mask, pdMS_TO_TICKS(1000));  
+        if (dots_mask & DOT_SECOND_BLINK) {
+            if (xSemaphoreTake(args->mutex, portMAX_DELAY) == pdTRUE) {
+                SetDot(args->display, 1, !dot_state[1]);
+                xSemaphoreGive(args->mutex);
+            }
+        }
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1000));       
     }
 }
 

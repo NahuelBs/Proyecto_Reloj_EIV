@@ -115,7 +115,7 @@ static void SegmentsInit(void) {
 }
 
 /**
- * Función encargada de inicializar el buzzer
+ * Función encargada de inicializar el LED indicador de alarma
  */
 
 static void LedInit(void) {

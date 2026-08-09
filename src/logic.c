@@ -23,6 +23,9 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 /* === Private Macros definitions ============================================================== */
 
+#define SETTING_TIMEOUT_MS 30000
+#define NORMAL_REFRESH_MS  1000
+
 /* === Private data type declarations ========================================================== */
 
 typedef enum {
@@ -91,10 +94,10 @@ static void UpdateDots(logic_task_args_t args) {
         dots_mask |= DOT_SECOND_BLINK;
     }
     if (mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA) {
-        dots_mask |= DOT_ALL_BLINK;
+        dots_mask |= DOT_ALL;
     }
-    if (mode == MODO_NORMAL && alarm_configured) {
-        dots_mask |= DOT_FOURTH_BLINK;
+    if (mode == MODO_NORMAL && GetAlarmClock(args->clock, alarm)) {
+        dots_mask |= DOT_FOURTH;
     }
     xQueueSend(args->dot, &dots_mask, pdMS_TO_TICKS(50));
 }
@@ -113,7 +116,6 @@ void ChangeMode(mode_t select_mode, logic_task_args_t args) {
         default: return;
     }
     xQueueSend(args->flash, &flash, 0);
-    UpdateDots(args);
 }
 
 /* === Public function implementation ========================================================== */
@@ -121,12 +123,24 @@ void ChangeMode(mode_t select_mode, logic_task_args_t args) {
 void LogicTask(void * pointer) {
     logic_task_args_t args = pointer;
     EventBits_t events;
-
+    TickType_t timeout;
+    
     ChangeMode(MODO_SIN_AJUSTAR, args);
+    UpdateDots(args);
 
     while(true){
 
-        events = xEventGroupWaitBits(args->event_keys, args->F1 | args->F2 | args->F3 | args->F4, pdTRUE, pdFALSE, portMAX_DELAY);
+        bool setting = (mode == MODO_MINUTOS || mode == MODO_HORAS || mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA);
+
+        if (setting) {
+            timeout = pdMS_TO_TICKS(SETTING_TIMEOUT_MS);
+        } else if (mode == MODO_NORMAL) {
+            timeout = pdMS_TO_TICKS(NORMAL_REFRESH_MS);
+        } else {
+            timeout = portMAX_DELAY;
+        }
+
+        events = xEventGroupWaitBits(args->event_keys, args->F1 | args->F2 | args->F3 | args->F4 | args->ACEPTAR | args->CANCELAR, pdTRUE, pdFALSE, timeout);
         switch(mode){
             case MODO_SIN_AJUSTAR:
                 break;
@@ -152,11 +166,11 @@ void LogicTask(void * pointer) {
                 break;
             case MODO_HORAS:
                 if (events & args->F4){
-                    IncrementBCD(&display_digits[2], HOURS_LIMIT);
+                    IncrementBCD(&display_digits[0], HOURS_LIMIT);
                     xQueueSend(args->digit, display_digits, pdMS_TO_TICKS(50));
                 }
                 if (events & args->F3){
-                    DecrementBCD(&display_digits[2], HOURS_LIMIT);
+                    DecrementBCD(&display_digits[0], HOURS_LIMIT);
                     xQueueSend(args->digit, display_digits, pdMS_TO_TICKS(50));
                 }
                 if (events & args->ACEPTAR){
@@ -173,6 +187,10 @@ void LogicTask(void * pointer) {
                 break;
             case MODO_NORMAL:
                 uint8_t aux;
+                if (events == 0) {
+                    GetCurrentTimeClock(args->clock, display_digits);
+                    xQueueSend(args->digit, display_digits, pdMS_TO_TICKS(50));
+                }
                 if (xQueueReceive(args->alarm, &aux, 0) == pdTRUE){
                     alarm_sounding = true;
                 }
@@ -191,14 +209,12 @@ void LogicTask(void * pointer) {
                         if (events & args->ACEPTAR) {
                             if (!GetAlarmClock(args->clock, alarm)) {
                                 ToggleAlarmClock(args->clock);
-                                UpdateDots(args);
                             }
                         }
                     }
                     if (events & args->CANCELAR) {
                         if (GetAlarmClock(args->clock, alarm)) {
                             ToggleAlarmClock(args->clock);
-                            UpdateDots(args);
                         }
                     }
                 }    
@@ -221,14 +237,15 @@ void LogicTask(void * pointer) {
                 break;
             case MODO_HORAS_ALARMA:
                 if (events & args->F4){
-                    IncrementBCD(&alarm[2], HOURS_LIMIT);
+                    IncrementBCD(&alarm[0], HOURS_LIMIT);
                     xQueueSend(args->digit, alarm, pdMS_TO_TICKS(50));
                 }
                 if (events & args->F3){
-                    DecrementBCD(&alarm[2], HOURS_LIMIT);
+                    DecrementBCD(&alarm[0], HOURS_LIMIT);
                     xQueueSend(args->digit, alarm, pdMS_TO_TICKS(50));
                 }
                 if (events & args->ACEPTAR){
+                    alarm_configured = SetupAlarmClock(args->clock, alarm);
                     ChangeMode(MODO_NORMAL, args);
                 }
                 if (events & args->CANCELAR){
@@ -236,7 +253,7 @@ void LogicTask(void * pointer) {
                 }                      
         }
 
-        if ((events & (args->F3 | args->F4 | args->ACEPTAR | args->CANCELAR)) != 0){
+        if (events == 0 && setting) {
             if (mode == MODO_MINUTOS || mode == MODO_HORAS) {
                     ChangeMode(GetCurrentTimeClock(args->clock, display_digits) ? MODO_NORMAL : MODO_SIN_AJUSTAR, args);
                 } else if (mode == MODO_MINUTOS_ALARMA || mode == MODO_HORAS_ALARMA){
@@ -248,10 +265,6 @@ void LogicTask(void * pointer) {
             ChangeMode(MODO_MINUTOS, args);
         }
 
-        if (events & args->F2){
-            ChangeMode(MODO_MINUTOS_ALARMA, args);
-        }
-
         if (events & args->F2) {
             if (!GetAlarmClock(args->clock, alarm)) {
                 for (int i = 0; i < 6; i++) alarm[i] = 0;
@@ -259,6 +272,7 @@ void LogicTask(void * pointer) {
             xQueueSend(args->digit, alarm, pdMS_TO_TICKS(50));
             ChangeMode(MODO_MINUTOS_ALARMA, args);
         }
+        UpdateDots(args);
     }
 }
 

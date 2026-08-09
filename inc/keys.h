@@ -56,7 +56,7 @@ extern "C" {
 #define KEY_CANCELAR    ((EventBits_t)(1 << 5))
 
 /** Tamaño de pila de las tareas de teclado */
-#define KEY_TASK_STACK_SIZE 256
+#define KEY_TASK_STACK_SIZE 128
 
 /* === Public data type declarations =========================================================== */
 
@@ -64,7 +64,7 @@ extern "C" {
  * @brief Parámetros de una tarea que publica eventos ante pulsaciones de tecla
  */
 typedef struct key_task_args_s {
-    EventGroupHandle_t event_keys;  /**< Grupo de eventos compartido */
+    EventGroupHandle_t event_keys;  /**< Grupo de eventos compartido entre las tareas de teclas y lógica */
     EventBits_t event_bit;          /**< Bit que se activa al pulsar la tecla */
     digital_input_t input;          /**< Entrada digital asociada a la tecla */
 } * key_task_args_t;
@@ -75,16 +75,17 @@ typedef struct key_task_args_s {
 /* === Public function declarations ============================================================ */
 
 /**
- * @brief Espera la pulsación de una tecla y publica el evento configurado
+ * @brief Espera que una tecla se mantenga pulsada durante 3 segundos
+ * y publica el evento configurado una sola vez.
  *
- * @param args Puntero a @ref key_task_args_s
+ * @param pointer Puntero a @ref key_task_args_s
  */
-void KeyTask(void * args);
+void KeyTask(void * pointer);
 
 /**
  * @brief Espera que se mantenga pulsado por 3 segundos una tecla y publica el evento configurado
  *
- * @param args Puntero a @ref key_task_args_s
+ * @param pointer Puntero a @ref key_task_args_s
  */
 void KeyLongPressTask(void * pointer);
 

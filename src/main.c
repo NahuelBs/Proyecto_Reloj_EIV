@@ -46,7 +46,7 @@ static QueueHandle_t alarm_queue;
 
 /* === Private function implementation ========================================================= */
 
-void AlarmOn(void){
+static void AlarmOn(void){
     uint8_t aux = 0;
     xQueueSend(alarm_queue, &aux, portMAX_DELAY);
     ActivateDigitalOutput(board->LED);
@@ -66,9 +66,12 @@ int main(void) {
     static struct display_task_args_s display_args;
     static struct refresh_task_args_s digits_args;
     static struct refresh_task_args_s dots_args;
+    static struct time_task_args_s time_args;
+    static struct refresh_task_args_s flash_args;
     EventGroupHandle_t keys_events;
     QueueHandle_t digits_queue;
     QueueHandle_t dots_queue;
+    QueueHandle_t flash_queue;
     SemaphoreHandle_t screen_mutex;
     
     board = CreateBoard();
@@ -77,11 +80,13 @@ int main(void) {
     digits_queue = xQueueCreate(3, 6 * sizeof(uint8_t));
     dots_queue = xQueueCreate(3, sizeof(uint8_t));
     alarm_queue = xQueueCreate(1, sizeof(uint8_t));
+    flash_queue = xQueueCreate(1, sizeof(flash_mode_t));
     screen_mutex = xSemaphoreCreateMutex();
     
     clock = CreateClock(1000, AlarmOn);
     
-    xTaskCreate(TimeTask, "Time", TIME_TASK_STACK_SIZE, clock, tskIDLE_PRIORITY + 5, NULL);
+    time_args.clock = clock;
+    xTaskCreate(TimeTask, "Time", TIME_TASK_STACK_SIZE, &time_args, tskIDLE_PRIORITY + 5, NULL);
 
     f1.event_keys = keys_events;
     f1.event_bit = KEY_F1;
@@ -123,9 +128,10 @@ int main(void) {
     logic_args.digit = digits_queue;
     logic_args.dot = dots_queue;
     logic_args.alarm = alarm_queue;
+    logic_args.flash = flash_queue;
     logic_args.clock = clock;
     logic_args.output = board->LED;
-    xTaskCreate(LogicTask, "CountTime", LOGIC_TASK_STACK_SIZE, &logic_args, tskIDLE_PRIORITY + 4, NULL);
+    xTaskCreate(LogicTask, "Logic", LOGIC_TASK_STACK_SIZE, &logic_args, tskIDLE_PRIORITY + 4, NULL);
 
     display_args.mutex = screen_mutex;
     display_args.display = board->DISPLAY;
@@ -140,6 +146,11 @@ int main(void) {
     dots_args.mutex = screen_mutex;
     dots_args.display = board->DISPLAY;
     xTaskCreate(UpdateDotsTask, "Update Dots", DISPLAY_TASK_STACK_SIZE, &dots_args, tskIDLE_PRIORITY + 2, NULL);
+
+    flash_args.data = flash_queue;
+    flash_args.mutex = screen_mutex;
+    flash_args.display = board->DISPLAY;
+    xTaskCreate(UpdateFlashTask, "Update Flash", DISPLAY_TASK_STACK_SIZE, &flash_args, tskIDLE_PRIORITY + 2, NULL);
 
     vTaskStartScheduler();
 }

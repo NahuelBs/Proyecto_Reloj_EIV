@@ -42,18 +42,18 @@ extern "C" {
 #define DOT_SECOND_BLINK   (1 << 0)   
 
 /** Mascara para habilitar el parpadeo del cuarto punto del display */
-#define DOT_FOURTH_BLINK   (1 << 1)   
+#define DOT_FOURTH         (1 << 1)   
 
 /** Mascara para habilitar el parpadeo de todos los puntos del display */
-#define DOT_ALL_BLINK      (1 << 2)   
+#define DOT_ALL            (1 << 2)   
 
 /** Tamaño de pila de las tareas del display */
-#define DISPLAY_TASK_STACK_SIZE 256
+#define DISPLAY_TASK_STACK_SIZE 128
 
 /* === Public data type declarations =========================================================== */
 
 /**
- * @brief 
+ * @brief Modos de parpadeo de los dígitos del display.
  */
 typedef enum {
     FLASH_ALL,
@@ -66,7 +66,7 @@ typedef enum {
  * @brief Parámetros de una tarea que actualiza un dato en pantalla
  */
 typedef struct refresh_task_args_s {
-    QueueHandle_t data;      /**< Cola con los valores a mostrar */
+    QueueHandle_t data;      /**< Cola de datos para la tarea */
     SemaphoreHandle_t mutex; /**< Mutex de acceso exclusivo a la pantalla */
     display_t display;       /**< Descriptor de la pantalla multiplexada */
 } * refresh_task_args_t;
@@ -90,31 +90,31 @@ typedef struct display_task_args_s {
 /**
  * @brief Ejecuta el barrido multiplexado de la pantalla de siete segmentos
  *
- * @param args Puntero a @ref display_task_args_s
+ * @param pointer Puntero a @ref display_task_args_s
  */
-void RefreshDisplayTask(void * args);
+void RefreshDisplayTask(void * pointer);
 
 /**
  * @brief Actualiza el display con los dígitos recibidos, solo si cambiaron
  * respecto a lo que ya se estaba mostrando
  *
- * @param args Puntero a @ref refresh_task_args_s
+ * @param pointer Puntero a @ref refresh_task_args_s
  */
-void UpdateDigitsTask(void * args);
+void UpdateDigitsTask(void * pointer);
 
 /**
- * @brief Encargado de manejar los puntos decimales del display 
+ * @brief Actualiza el estado y el parpadeo de los puntos del display.
  *
- * @param args Puntero a @ref refresh_task_args_s
+ * @param pointer Puntero a @ref refresh_task_args_s
  */
-void UpdateDotsTask(void * args);
+void UpdateDotsTask(void * pointer);
 
 /**
- * @brief 
+ * @brief Actualiza el modo de parpadeo de los dígitos del display.
  *
- * @param args Puntero a @ref 
+ * @param pointer Puntero a @ref refresh_task_args_s
  */
-void UpdateFlashTask(void * args);
+void UpdateFlashTask(void * pointer);
 
 /* === End of conditional blocks =============================================================== */
 

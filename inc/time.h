@@ -37,7 +37,7 @@ extern "C" {
 /* === Macros definitions ====================================================================== */
 
 /** Tamaño de pila de la tarea del tiempo  */
-#define TIME_TASK_STACK_SIZE 256
+#define TIME_TASK_STACK_SIZE 128
 
 /* === Public data type declarations =========================================================== */
 
@@ -56,7 +56,7 @@ typedef struct time_task_args_s {
  * @brief Avanza el reloj interno cada 1 milisegundo, usando los servicios
  * de tiempo del sistema operativo en lugar de una interrupción de SysTick
  * 
- * @param args Puntero a @ref time_task_args_s
+ * @param pointer Puntero a @ref time_task_args_s
  */
 void TimeTask(void * pointer);
 
