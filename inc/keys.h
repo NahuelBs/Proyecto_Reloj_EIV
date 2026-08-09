@@ -18,7 +18,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * teclas de la placa y disparar eventos.
  * @{
  *
-*************************************************************************************************/
+ *************************************************************************************************/
 
 #ifndef KEYS_H
 #define KEYS_H
@@ -26,8 +26,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Headers files inclusions ================================================================ */
 
 #include "FreeRTOS.h"
-#include "event_groups.h"
 #include "bsp.h"
+#include "event_groups.h"
 
 /* === Header C++ ============================================================================== */
 
@@ -38,22 +38,22 @@ extern "C" {
 /* === Macros definitions ====================================================================== */
 
 /** Evento de la tecla F1  */
-#define KEY_F1          ((EventBits_t)(1 << 0))
+#define KEY_F1 ((EventBits_t)(1 << 0))
 
 /** Evento de la tecla F2  */
-#define KEY_F2          ((EventBits_t)(1 << 1))
+#define KEY_F2 ((EventBits_t)(1 << 1))
 
 /** Evento de la tecla F3 */
-#define KEY_F3          ((EventBits_t)(1 << 2))
+#define KEY_F3 ((EventBits_t)(1 << 2))
 
 /** Evento de la tecla F4 */
-#define KEY_F4          ((EventBits_t)(1 << 3))
+#define KEY_F4 ((EventBits_t)(1 << 3))
 
 /** Evento de la tecla ACEPTAR  */
-#define KEY_ACEPTAR     ((EventBits_t)(1 << 4))
+#define KEY_ACEPTAR ((EventBits_t)(1 << 4))
 
 /** Evento de la tecla CANCELAR */
-#define KEY_CANCELAR    ((EventBits_t)(1 << 5))
+#define KEY_CANCELAR ((EventBits_t)(1 << 5))
 
 /** Tamaño de pila de las tareas de teclado */
 #define KEY_TASK_STACK_SIZE 128
@@ -64,11 +64,10 @@ extern "C" {
  * @brief Parámetros de una tarea que publica eventos ante pulsaciones de tecla
  */
 typedef struct key_task_args_s {
-    EventGroupHandle_t event_keys;  /**< Grupo de eventos compartido entre las tareas de teclas y lógica */
-    EventBits_t event_bit;          /**< Bit que se activa al pulsar la tecla */
-    digital_input_t input;          /**< Entrada digital asociada a la tecla */
-} * key_task_args_t;
-
+  EventGroupHandle_t event_keys; /**< Grupo de eventos compartido entre las tareas de teclas y lógica */
+  EventBits_t event_bit;         /**< Bit que se activa al pulsar la tecla */
+  digital_input_t input;         /**< Entrada digital asociada a la tecla */
+} *key_task_args_t;
 
 /* === Private function declarations =========================================================== */
 
@@ -80,14 +79,14 @@ typedef struct key_task_args_s {
  *
  * @param pointer Puntero a @ref key_task_args_s
  */
-void KeyTask(void * pointer);
+void KeyTask(void *pointer);
 
 /**
  * @brief Espera que se mantenga pulsado por 3 segundos una tecla y publica el evento configurado
  *
  * @param pointer Puntero a @ref key_task_args_s
  */
-void KeyLongPressTask(void * pointer);
+void KeyLongPressTask(void *pointer);
 
 /* === Private function implementation ========================================================= */
 

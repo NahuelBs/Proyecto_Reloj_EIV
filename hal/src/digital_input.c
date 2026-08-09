@@ -13,57 +13,68 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * @brief Implementación de la abstracción para entradas digitales.
  */
 
- /** * @addtogroup LAB4
- * @{ 
+/** * @addtogroup LAB4
+ * @{
  */
-/* === Headers files inclusions ==================================================================================== */
+/* === Headers files inclusions
+ * ====================================================================================
+ */
 
 #include "digital_input.h"
 #include "chip.h"
 #include <stdbool.h>
 #include <stddef.h>
 
-/* === Public macros definitions =================================================================================== */
+/* === Public macros definitions
+ * ===================================================================================
+ */
 
-#define DEBOUNCE_THRESHOLD 1000 
+#define DEBOUNCE_THRESHOLD 1000
 
-/* === Private data type declarations ============================================================================== */
+/* === Private data type declarations
+ * ==============================================================================
+ */
 
 struct digital_input_s {
   uint8_t port;
   uint32_t pin;
-  uint16_t debounce_counter;     
+  uint16_t debounce_counter;
   bool last_state;
-  bool inverted;     
+  bool inverted;
   bool used;
 };
 
-/* === Private function implementation ============================================================================== */
+/* === Private function implementation
+ * ==============================================================================
+ */
 
 /**
  * Reserva un bloque contiguo de memoria para N objetos homogéneos
  * del mismo tipo y tamaño (static pool).
- * digital_output_t puntero a un slot; retorna NULL si no 
+ * digital_output_t puntero a un slot; retorna NULL si no
  * existe espacio disponible.
  */
 
 static digital_input_t ReserveDigitalInput(void) {
-  static struct digital_input_s memory_pool[6] = {0};      //arreglo estático que actúa como pool de memoria para los objetos
-  digital_input_t slot                          = NULL;     //puntero de retorno inicializado en NULL para evitar valores basura 
+  static struct digital_input_s memory_pool[6] = {0};      // arreglo estático que actúa como pool de memoria para los objetos
+  digital_input_t slot                         = NULL;     // puntero de retorno inicializado en NULL para
+                                                           // evitar valores basura
 
-  //se recorre el pool de memoria para buscar un lugar disponible
+  // se recorre el pool de memoria para buscar un lugar disponible
 
-  for (int i = 0; i < 6; i++) {                           
-    if (!memory_pool[i].used) {                  //verifica si el slot actual esta libre
-      slot                = &memory_pool[i];     //asigna la dirección del slot libre al puntero
-      memory_pool[i].used = true;                //marca el slot como ocupado
-      break;                                     //sale del bucle tras encontrar el primer slot libre
+  for (int i = 0; i < 6; i++) {
+    if (!memory_pool[i].used) {                  // verifica si el slot actual esta libre
+      slot                = &memory_pool[i];     // asigna la dirección del slot libre al puntero
+      memory_pool[i].used = true;                // marca el slot como ocupado
+      break;                                     // sale del bucle tras encontrar el primer slot libre
     }
   }
   return slot;
 }
 
-/* === Public function implementation ============================================================================== */
+/* === Public function implementation
+ * ==============================================================================
+ */
 
 /**
  * Constructor, encargado de inicializar el objeto.
@@ -72,45 +83,47 @@ static digital_input_t ReserveDigitalInput(void) {
 digital_input_t CreateDigitalInput(uint8_t port, uint32_t pin, bool inverted) {
   digital_input_t self = ReserveDigitalInput();
   if (self) {
-    self->port     = port;
-    self->pin      = pin;
-    self->inverted = inverted;
+    self->port             = port;
+    self->pin              = pin;
+    self->inverted         = inverted;
     self->debounce_counter = 0;
-    //funcion encagada de definir el sentido de circulación de datos del pin (entrada o salida)
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin, false);  // false -> entrada
+    // funcion encagada de definir el sentido de circulación de datos del pin
+    // (entrada o salida)
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, self->port, self->pin,
+                        false);     // false -> entrada
   }
   return self;
 }
 
-
 /**
- * Función encargada de leer el estado actual de la terminal(entrada presionada o no)
+ * Función encargada de leer el estado actual de la terminal(entrada presionada
+ * o no)
  */
 
 bool GetStateDigitalInput(digital_input_t self) {
-  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin)!= self->inverted;                                                                
+  return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, self->port, self->pin) != self->inverted;
 }
 
 /**
- * Función que determina si el estado de la entrada se modifico respecto a la ultima vez revisada
- * se agrego antirrebote
+ * Función que determina si el estado de la entrada se modifico respecto a la
+ * ultima vez revisada se agrego antirrebote
  */
 
-int HasChangedDigitalInput(digital_input_t self) {     
+int HasChangedDigitalInput(digital_input_t self) {
   int state          = 0;
   bool current_state = GetStateDigitalInput(self);
-  if (current_state != self->last_state) {  
+  if (current_state != self->last_state) {
     self->debounce_counter++;
     if (self->debounce_counter >= DEBOUNCE_THRESHOLD) {
       self->debounce_counter = 0;
       if (current_state && !self->last_state) {
-        state = ACTIVATE_EVENT;                            
-      } else if (!current_state && self->last_state) {     
-        state = DEACTIVATE_EVENT;                          
+        state = ACTIVATE_EVENT;
+      } else if (!current_state && self->last_state) {
+        state = DEACTIVATE_EVENT;
       }
       self->last_state = current_state;
     }
-  }else{
+  } else {
     self->debounce_counter = 0;
   }
   return state;
@@ -125,15 +138,15 @@ bool HasActivatedDigitalInput(digital_input_t self) {
 }
 
 /**
- * Función encargada de detectar un flanco decendente 
+ * Función encargada de detectar un flanco decendente
  */
 
 bool HasDeactivatedDigitalInput(digital_input_t self) {
   return HasChangedDigitalInput(self) == DEACTIVATE_EVENT;
 }
 
-
-
-/* === End of documentation ======================================================================================== */
+/* === End of documentation
+ * ========================================================================================
+ */
 
 /** @} End of module definition for doxygen */

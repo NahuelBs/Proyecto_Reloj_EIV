@@ -16,7 +16,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /** * @addtogroup LAB4 LAB4 - Abstracción de Hardware
  * @brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
  * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- * @{ 
+ * @{
  */
 /* === Headers files inclusions =============================================================== */
 
@@ -66,7 +66,7 @@ int HasChangedDigitalInput(digital_input_t input);
 bool HasActivatedDigitalInput(digital_input_t input);
 
 /**
- * @brief Función encargada de detectar un flanco decendente 
+ * @brief Función encargada de detectar un flanco decendente
  */
 
 bool HasDeactivatedDigitalInput(digital_input_t input);

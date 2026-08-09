@@ -16,7 +16,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /** * @addtogroup LAB4 LAB4 - Abstracción de Hardware
  * @brief Desarrollo de una Capa de Abstracción de Hardware (HAL) orientada a
  * objetos personalizada, diseñada para desacoplar el código del hardware del fabricante.
- * @{ 
+ * @{
  */
 /* === Headers files inclusions =============================================================== */
 
@@ -46,19 +46,19 @@ typedef struct digital_output_s *digital_output_t;
 digital_output_t CreateDigitalOutput(uint8_t port, uint32_t pin, bool inverted);
 
 /**
- * @brief Función encargada de activar la salida, estableciendola en estado alto 
+ * @brief Función encargada de activar la salida, estableciendola en estado alto
  */
 
 void ActivateDigitalOutput(digital_output_t output);
 
 /**
- * @brief Función encargada de desactivar la salida, estableciendola en estado bajo 
+ * @brief Función encargada de desactivar la salida, estableciendola en estado bajo
  */
 
 void DeactivateDigitalOutput(digital_output_t output);
 
 /**
- * @brief Función encargada de invertir el estado actual, '1' <-> '0' 
+ * @brief Función encargada de invertir el estado actual, '1' <-> '0'
  */
 
 void ToggleDigitalOutput(digital_output_t output);

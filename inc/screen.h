@@ -50,35 +50,35 @@ extern "C" {
 /* === Public macros definitions =================================================================================== */
 
 /** @brief Máscara del segmento A */
-#define SEGMENT_A (1 << 0)                 //00000001
+#define SEGMENT_A (1 << 0)     //00000001
 
 /** @brief Máscara del segmento B */
-#define SEGMENT_B (1 << 1)                 //00000010
+#define SEGMENT_B (1 << 1)     //00000010
 
 /** @brief Máscara del segmento C */
-#define SEGMENT_C (1 << 2)                 //00000100
+#define SEGMENT_C (1 << 2)     //00000100
 
 /** @brief Máscara del segmento D */
-#define SEGMENT_D (1 << 3)                 //00001000
+#define SEGMENT_D (1 << 3)     //00001000
 
 /** @brief Máscara del segmento E */
-#define SEGMENT_E (1 << 4)                 //00010000
+#define SEGMENT_E (1 << 4)     //00010000
 
 /** @brief Máscara del segmento F */
-#define SEGMENT_F (1 << 5)                 //00100000
+#define SEGMENT_F (1 << 5)     //00100000
 
 /** @brief Máscara del segmento G */
-#define SEGMENT_G (1 << 6)                 //01000000
+#define SEGMENT_G (1 << 6)     //01000000
 
 /** @brief Máscara del punto decimal */
-#define SEGMENT_P (1 << 7)                 //10000000
+#define SEGMENT_P (1 << 7)     //10000000
 
 /* === Public data type declarations =============================================================================== */
 
 /**
  * @brief Puntero opaco al descriptor de la pantalla multiplexada
  */
-typedef struct display_s * display_t;
+typedef struct display_s *display_t;
 
 /**
  * @brief Callback de bajo nivel para seleccionar el dígito activo en el hardware
@@ -87,7 +87,7 @@ typedef struct display_s * display_t;
  *
  * @param digit Índice del dígito a activar, en el rango @c 0 .. (digits - 1)
  */
-typedef void (*display_update_digits_t)(uint8_t digit); //<-static void UpdateDigits(uint8_t digit) 
+typedef void (*display_update_digits_t)(uint8_t digit);     //<-static void UpdateDigits(uint8_t digit)
 
 /**
  * @brief Callback de bajo nivel para actualizar el patrón de segmentos encendidos
@@ -95,15 +95,15 @@ typedef void (*display_update_digits_t)(uint8_t digit); //<-static void UpdateDi
  * @param segments Máscara de bits con los segmentos activos (@ref SEGMENT_A .. @ref SEGMENT_P).
  *                 El valor @c 0x00 apaga todos los segmentos (pantalla en blanco).
  */
-typedef void (*display_update_segments_t)(uint8_t segments); //<-static void UpdateSegments(uint8_t segments)
+typedef void (*display_update_segments_t)(uint8_t segments);     //<-static void UpdateSegments(uint8_t segments)
 
 /**
  * @brief Controlador de bajo nivel de la pantalla multiplexada
  */
 typedef struct display_driver_s {
-    display_update_digits_t UpdateDigits;     /**< Selecciona el dígito activo */
-    display_update_segments_t UpdateSegments; /**< Actualiza los segmentos encendidos */
-} const * const display_driver_t;
+  display_update_digits_t UpdateDigits;     /**< Selecciona el dígito activo */
+  display_update_segments_t UpdateSegments; /**< Actualiza los segmentos encendidos */
+} const *const display_driver_t;
 
 /* === Public variable declarations ================================================================================ */
 
@@ -125,7 +125,7 @@ display_t DisplayCreate(uint8_t digits, display_driver_t driver);
  * @param  number   Puntero al primer dígito BCD (cada elemento en @c 0..9)
  * @param  size     Cantidad de dígitos en @p number
  */
-void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size);
+void DisplayWriteBCD(display_t display, uint8_t *number, uint8_t size);
 
 /**
  * @brief Refresca un paso del barrido multiplexado

@@ -17,7 +17,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * @brief Módulo encargado de avanzar el reloj interno de forma periódica.
  * @{
  *
-*************************************************************************************************/
+ *************************************************************************************************/
 
 #ifndef TIME_H
 #define TIME_H
@@ -25,8 +25,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Headers files inclusions ================================================================ */
 
 #include "FreeRTOS.h"
-#include "task.h"
 #include "clock.h"
+#include "task.h"
 
 /* === Header C++ ============================================================================== */
 
@@ -45,8 +45,8 @@ extern "C" {
  * @brief Parámetros de la tarea encargada de avanzar el reloj interno
  */
 typedef struct time_task_args_s {
-    clock_t clock;      /**< Descriptor del reloj creado con CreateClock */
-} * time_task_args_t;
+  clock_t clock; /**< Descriptor del reloj creado con CreateClock */
+} *time_task_args_t;
 
 /* === Private function declarations =========================================================== */
 
@@ -55,10 +55,10 @@ typedef struct time_task_args_s {
 /**
  * @brief Avanza el reloj interno cada 1 milisegundo, usando los servicios
  * de tiempo del sistema operativo en lugar de una interrupción de SysTick
- * 
+ *
  * @param pointer Puntero a @ref time_task_args_s
  */
-void TimeTask(void * pointer);
+void TimeTask(void *pointer);
 
 /* === Private function implementation ========================================================= */
 

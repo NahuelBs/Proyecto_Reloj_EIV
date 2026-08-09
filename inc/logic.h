@@ -19,7 +19,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * la alarma y el contenido a mostrar en el display
  * @{
  *
-*************************************************************************************************/
+ *************************************************************************************************/
 
 #ifndef LOGIC_H
 #define LOGIC_H
@@ -27,10 +27,10 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Headers files inclusions ================================================================ */
 
 #include "FreeRTOS.h"
-#include "queue.h"
-#include "event_groups.h"
-#include "clock.h"
 #include "bsp.h"
+#include "clock.h"
+#include "event_groups.h"
+#include "queue.h"
 #include <stdbool.h>
 
 /* === Header C++ ============================================================================== */
@@ -50,20 +50,20 @@ extern "C" {
  * @brief Parámetros de la tarea de gestión de la lógica del reloj.
  */
 typedef struct logic_task_args_s {
-    EventGroupHandle_t event_keys;      /**< Grupo de eventos de las teclas */
-    EventBits_t F1;                     /**< Bit tecla F1 */
-    EventBits_t F2;                     /**< Bit tecla F2 */
-    EventBits_t F3;                     /**< Bit tecla F3 */
-    EventBits_t F4;                     /**< Bit tecla F4 */
-    EventBits_t ACEPTAR;                /**< Bit tecla ACEPTAR */
-    EventBits_t CANCELAR;               /**< Bit tecla CANCELAR */
-    QueueHandle_t dot;                  /**< Cola para actualizar los puntos del display */
-    QueueHandle_t digit;                /**< Cola para actualizar los dígitos del display */
-    QueueHandle_t alarm;                /**< Cola para notificar el disparo de la alarma */
-    QueueHandle_t flash;                /**< Cola para configurar el parpadeo del display */
-    clock_t clock;                      /**< Instancia del reloj */
-    digital_output_t output;            /**< Salida digital para controlar el indicador de alarma */
-} * logic_task_args_t;
+  EventGroupHandle_t event_keys; /**< Grupo de eventos de las teclas */
+  EventBits_t F1;                /**< Bit tecla F1 */
+  EventBits_t F2;                /**< Bit tecla F2 */
+  EventBits_t F3;                /**< Bit tecla F3 */
+  EventBits_t F4;                /**< Bit tecla F4 */
+  EventBits_t ACEPTAR;           /**< Bit tecla ACEPTAR */
+  EventBits_t CANCELAR;          /**< Bit tecla CANCELAR */
+  QueueHandle_t dot;             /**< Cola para actualizar los puntos del display */
+  QueueHandle_t digit;           /**< Cola para actualizar los dígitos del display */
+  QueueHandle_t alarm;           /**< Cola para notificar el disparo de la alarma */
+  QueueHandle_t flash;           /**< Cola para configurar el parpadeo del display */
+  clock_t clock;                 /**< Instancia del reloj */
+  digital_output_t output;       /**< Salida digital para controlar el indicador de alarma */
+} *logic_task_args_t;
 
 /* === Private function declarations =========================================================== */
 
@@ -74,7 +74,7 @@ typedef struct logic_task_args_s {
  *
  * @param pointer Puntero a @ref logic_task_args_s
  */
-void LogicTask(void * pointer);
+void LogicTask(void *pointer);
 
 /* === Private function implementation ========================================================= */
 

@@ -14,7 +14,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  */
 
 /** * @addtogroup TFI
- * @{ 
+ * @{
  */
 /* === Headers files inclusions ================================================================ */
 
@@ -36,13 +36,13 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 /* === Public function implementation ========================================================== */
 
-void TimeTask(void * pointer){
-    time_task_args_t args = pointer;
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    while(true){
-        NewTickClock(args->clock);
-        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1)); 
-    }
+void TimeTask(void *pointer) {
+  time_task_args_t args    = pointer;
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  while (true) {
+    NewTickClock(args->clock);
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1));
+  }
 }
 
 /* === End of documentation ==================================================================== */

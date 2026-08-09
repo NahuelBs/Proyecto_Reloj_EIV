@@ -18,7 +18,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * segmentos y actualizar los dígitos y puntos según el estado del reloj.
  * @{
  *
-*************************************************************************************************/
+ *************************************************************************************************/
 
 #ifndef DISPLAY_H
 #define DISPLAY_H
@@ -26,9 +26,9 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 /* === Headers files inclusions ================================================================ */
 
 #include "FreeRTOS.h"
-#include "semphr.h"
-#include "queue.h"
 #include "bsp.h"
+#include "queue.h"
+#include "semphr.h"
 
 /* === Header C++ ============================================================================== */
 
@@ -39,13 +39,16 @@ extern "C" {
 /* === Macros definitions ====================================================================== */
 
 /** Mascara para habilitar el parpadeo del segundo punto del display */
-#define DOT_SECOND_BLINK   (1 << 0)   
+#define DOT_SECOND_BLINK (1 << 0)
 
-/** Mascara para habilitar el parpadeo del cuarto punto del display */
-#define DOT_FOURTH         (1 << 1)   
+/** Máscara para mantener encendido el cuarto punto del display */
+#define DOT_FOURTH (1 << 1)
 
 /** Mascara para habilitar el parpadeo de todos los puntos del display */
-#define DOT_ALL            (1 << 2)   
+#define DOT_ALL (1 << 2)
+
+/** Mascara para dejar fijo el segundo punto del display */
+#define DOT_SECOND_FIXED (1 << 3)
 
 /** Tamaño de pila de las tareas del display */
 #define DISPLAY_TASK_STACK_SIZE 128
@@ -56,28 +59,28 @@ extern "C" {
  * @brief Modos de parpadeo de los dígitos del display.
  */
 typedef enum {
-    FLASH_ALL,
-    FLASH_MINUTES,
-    FLASH_HOURS,
-    FLASH_NONE
+  FLASH_ALL,
+  FLASH_MINUTES,
+  FLASH_HOURS,
+  FLASH_NONE
 } flash_mode_t;
 
 /**
  * @brief Parámetros de una tarea que actualiza un dato en pantalla
  */
 typedef struct refresh_task_args_s {
-    QueueHandle_t data;      /**< Cola de datos para la tarea */
-    SemaphoreHandle_t mutex; /**< Mutex de acceso exclusivo a la pantalla */
-    display_t display;       /**< Descriptor de la pantalla multiplexada */
-} * refresh_task_args_t;
+  QueueHandle_t data;      /**< Cola de datos para la tarea */
+  SemaphoreHandle_t mutex; /**< Mutex de acceso exclusivo a la pantalla */
+  display_t display;       /**< Descriptor de la pantalla multiplexada */
+} *refresh_task_args_t;
 
 /**
  * @brief Parámetros de la tarea de barrido de la pantalla multiplexada
  */
 typedef struct display_task_args_s {
-    SemaphoreHandle_t mutex; /**< Mutex de acceso exclusivo a la pantalla */
-    display_t display;       /**< Descriptor de la pantalla multiplexada */
-} * display_task_args_t;
+  SemaphoreHandle_t mutex; /**< Mutex de acceso exclusivo a la pantalla */
+  display_t display;       /**< Descriptor de la pantalla multiplexada */
+} *display_task_args_t;
 
 /* === Private function declarations =========================================================== */
 
@@ -92,7 +95,7 @@ typedef struct display_task_args_s {
  *
  * @param pointer Puntero a @ref display_task_args_s
  */
-void RefreshDisplayTask(void * pointer);
+void RefreshDisplayTask(void *pointer);
 
 /**
  * @brief Actualiza el display con los dígitos recibidos, solo si cambiaron
@@ -100,21 +103,21 @@ void RefreshDisplayTask(void * pointer);
  *
  * @param pointer Puntero a @ref refresh_task_args_s
  */
-void UpdateDigitsTask(void * pointer);
+void UpdateDigitsTask(void *pointer);
 
 /**
  * @brief Actualiza el estado y el parpadeo de los puntos del display.
  *
  * @param pointer Puntero a @ref refresh_task_args_s
  */
-void UpdateDotsTask(void * pointer);
+void UpdateDotsTask(void *pointer);
 
 /**
  * @brief Actualiza el modo de parpadeo de los dígitos del display.
  *
  * @param pointer Puntero a @ref refresh_task_args_s
  */
-void UpdateFlashTask(void * pointer);
+void UpdateFlashTask(void *pointer);
 
 /* === End of conditional blocks =============================================================== */
 

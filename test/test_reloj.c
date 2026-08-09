@@ -17,7 +17,7 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * @brief Pruebas automáticas utilizando el framework Unity para validar, el comportamiento correcto del reloj.
  * @{
  *
-*************************************************************************************************/
+ *************************************************************************************************/
 /** @todo Test case:
  * ‣ Al inicializar el reloj está en 00:00 y con hora invalida.
  * ‣ Al ajustar la hora el reloj queda en hora y es válida.
@@ -28,241 +28,239 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * ‣ Fijar la alarma y avanzar el reloj para que suene.
  * ‣ Hacer sonar la alarma y posponerla.
  * ‣ Hacer sonar la alarma y cancelarla hasta el otro dia
-*************************************************************************************************/
+ *************************************************************************************************/
 
-#include "unity.h"
 #include "reloj.h"
-
+#include "unity.h"
 
 static const hora_t DEFAULT_TIME = {0, 0, 0, 0, 0, 0};
 static const hora_t INITIAL_TIME = {1, 2, 3, 4, 5, 6};
 static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
-static bool alarma_sono = false;
+static bool alarma_sono          = false;
 
-#define TICK_PER_SECOND 3
-#define ONE_SECOND TICK_PER_SECOND
-#define TEN_SECONDS         (10 * ONE_SECOND)
-#define ONE_MINUTE          (60 * ONE_SECOND)
-#define FIVE_MINUTE         (5  * ONE_MINUTE)
-#define TEN_MINUTES         (10 * ONE_MINUTE)
-#define ONE_HOUR            (60 * ONE_MINUTE)
-#define TEN_HOURS           (10 * ONE_HOUR)
-#define TWENTY_FOUR_HOURS   (24 * ONE_HOUR)
+#define TICK_PER_SECOND   3
+#define ONE_SECOND        TICK_PER_SECOND
+#define TEN_SECONDS       (10 * ONE_SECOND)
+#define ONE_MINUTE        (60 * ONE_SECOND)
+#define FIVE_MINUTE       (5 * ONE_MINUTE)
+#define TEN_MINUTES       (10 * ONE_MINUTE)
+#define ONE_HOUR          (60 * ONE_MINUTE)
+#define TEN_HOURS         (10 * ONE_HOUR)
+#define TWENTY_FOUR_HOURS (24 * ONE_HOUR)
 
-void SimulateClockTicks(clock_t reloj, unsigned int ticks){
-    for(unsigned int i = 0; i < ticks; i++){
-        NewTickClock(reloj);
-    }
+void SimulateClockTicks(clock_t reloj, unsigned int ticks) {
+  for (unsigned int i = 0; i < ticks; i++) {
+    NewTickClock(reloj);
+  }
 }
 
-void BuzzerOn(void){
-    alarma_sono = true;
+void BuzzerOn(void) {
+  alarma_sono = true;
 }
-
 
 //‣ Al inicializar el reloj está en 00:00 y con hora invalida.
-void test_reloj_inicia_invalido(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    bool es_valida;
+void test_reloj_inicia_invalido(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  bool es_valida;
 
-    reloj = CreateClock(1, NULL);
-    es_valida = GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_FALSE(es_valida);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(DEFAULT_TIME, hora_actual, 6);
+  reloj     = CreateClock(1, NULL);
+  es_valida = GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_FALSE(es_valida);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(DEFAULT_TIME, hora_actual, 6);
 }
 
 //‣ Al ajustar la hora el reloj queda en hora y es válida.
-void test_ajuste_de_hora(void){
-    clock_t reloj;
-    hora_t hora_actual = {1, 2, 3, 4, 5, 6};
+void test_ajuste_de_hora(void) {
+  clock_t reloj;
+  hora_t hora_actual = {1, 2, 3, 4, 5, 6};
 
-    reloj = CreateClock(1, NULL);
-    TEST_ASSERT_TRUE(SetupCurrentTimeClock(reloj, INITIAL_TIME));
-    TEST_ASSERT(GetCurrentTimeClock(reloj, hora_actual));
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(INITIAL_TIME, hora_actual, 6);
+  reloj = CreateClock(1, NULL);
+  TEST_ASSERT_TRUE(SetupCurrentTimeClock(reloj, INITIAL_TIME));
+  TEST_ASSERT(GetCurrentTimeClock(reloj, hora_actual));
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(INITIAL_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza un segundo
-void test_avanza_un_segundo(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {1, 2, 3, 4, 5, 7};
+void test_avanza_un_segundo(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {1, 2, 3, 4, 5, 7};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, ONE_SECOND);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, ONE_SECOND);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza diez segundos
-void test_avanza_un_diez_segundos(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {1, 2, 3, 5, 0, 6};
+void test_avanza_un_diez_segundos(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {1, 2, 3, 5, 0, 6};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, TEN_SECONDS);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, TEN_SECONDS);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza un minuto
-void test_avanza_un_minuto(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {1, 2, 3, 5, 5, 6};
+void test_avanza_un_minuto(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {1, 2, 3, 5, 5, 6};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, ONE_MINUTE);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, ONE_MINUTE);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza diez minuto
-void test_avanza_diez_minutos(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {1, 2, 4, 4, 5, 6};
+void test_avanza_diez_minutos(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {1, 2, 4, 4, 5, 6};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, TEN_MINUTES);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, TEN_MINUTES);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza una hora
-void test_avanza_una_hora(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {1, 3, 3, 4, 5, 6};
+void test_avanza_una_hora(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {1, 3, 3, 4, 5, 6};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, ONE_HOUR);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, ONE_HOUR);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza diez hora
-void test_avanza_diez_horas(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {2, 2, 3, 4, 5, 6};
+void test_avanza_diez_horas(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {2, 2, 3, 4, 5, 6};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, TEN_HOURS);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, TEN_HOURS);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Después de n ciclos de reloj la hora avanza un dia completo
-void test_avanza_24_horas(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t EXPECTED_TIME = {1, 2, 3, 4, 5, 6};
+void test_avanza_24_horas(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t EXPECTED_TIME = {1, 2, 3, 4, 5, 6};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, TWENTY_FOUR_HOURS);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, TWENTY_FOUR_HOURS);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Test para verificar el correcto funcionamiento al llegar a las 00:00 horas
-void test_comprobar_las_0000_horas(void){
-    clock_t reloj;
-    hora_t hora_actual;
-    static const hora_t INITIAL_TIME = {1, 4, 0, 0, 0, 0};
-    static const hora_t EXPECTED_TIME     = {0, 0, 0, 0, 0, 0};
+void test_comprobar_las_0000_horas(void) {
+  clock_t reloj;
+  hora_t hora_actual;
+  static const hora_t INITIAL_TIME  = {1, 4, 0, 0, 0, 0};
+  static const hora_t EXPECTED_TIME = {0, 0, 0, 0, 0, 0};
 
-    reloj = CreateClock(TICK_PER_SECOND, NULL);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SimulateClockTicks(reloj, TEN_HOURS);
-    GetCurrentTimeClock(reloj, hora_actual);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
+  reloj = CreateClock(TICK_PER_SECOND, NULL);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SimulateClockTicks(reloj, TEN_HOURS);
+  GetCurrentTimeClock(reloj, hora_actual);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(EXPECTED_TIME, hora_actual, 6);
 }
 
 //‣ Fijar la hora de la alarma y consultarla.
-void test_fijar_hora_de_alarma(void){
-    clock_t reloj;
-    hora_t alarma_obtenida;
-    
-    reloj = CreateClock(1, NULL);
-    SetupAlarmClock(reloj, ALARM_TIME);
-    GetAlarmClock(reloj, alarma_obtenida);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(ALARM_TIME, alarma_obtenida, 6);
+void test_fijar_hora_de_alarma(void) {
+  clock_t reloj;
+  hora_t alarma_obtenida;
+
+  reloj = CreateClock(1, NULL);
+  SetupAlarmClock(reloj, ALARM_TIME);
+  GetAlarmClock(reloj, alarma_obtenida);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(ALARM_TIME, alarma_obtenida, 6);
 }
 
 //‣ Fijar la alarma para que suene.
-void test_alarma_para_que_suene(void){
-    clock_t reloj;
+void test_alarma_para_que_suene(void) {
+  clock_t reloj;
 
-    reloj = CreateClock(1, NULL);
-    TEST_ASSERT_TRUE(SetupAlarmClock(reloj, ALARM_TIME));     
+  reloj = CreateClock(1, NULL);
+  TEST_ASSERT_TRUE(SetupAlarmClock(reloj, ALARM_TIME));
 }
 
 //‣ Fijar la alarma, deshabilitarla para no suene.
-void test_alarma_para_que_no_suene(void){
-    clock_t reloj;
+void test_alarma_para_que_no_suene(void) {
+  clock_t reloj;
 
-    reloj = CreateClock(1, NULL);
-    SetupAlarmClock(reloj, ALARM_TIME);
-    TEST_ASSERT_FALSE(ToggleAlarmClock(reloj));    
+  reloj = CreateClock(1, NULL);
+  SetupAlarmClock(reloj, ALARM_TIME);
+  TEST_ASSERT_FALSE(ToggleAlarmClock(reloj));
 }
 
 //‣ Fijar la alarma y avanzar el reloj para que suene.
-void test_suena_alarma(void){
-    clock_t reloj;
-    alarma_sono = false;
-    static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
-    static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
+void test_suena_alarma(void) {
+  clock_t reloj;
+  alarma_sono                      = false;
+  static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
+  static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
 
-    reloj = CreateClock(TICK_PER_SECOND, BuzzerOn);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SetupAlarmClock(reloj, ALARM_TIME);
-    SimulateClockTicks(reloj, ONE_HOUR);
-    TEST_ASSERT_TRUE(alarma_sono);
+  reloj = CreateClock(TICK_PER_SECOND, BuzzerOn);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SetupAlarmClock(reloj, ALARM_TIME);
+  SimulateClockTicks(reloj, ONE_HOUR);
+  TEST_ASSERT_TRUE(alarma_sono);
 }
 
 //‣ Hacer sonar la alarma y posponerla por una cantidad arbitraria de minutos.
-void test_posponer_alarma(void){
-   clock_t reloj;
-    static const hora_t INITIAL_TIME  = {0, 5, 0, 0, 0, 0};
-    static const hora_t ALARM_TIME    = {0, 6, 0, 0, 0, 0};
-    static const hora_t SNOOZED_TIME  = {0, 6, 0, 5, 0, 0};  
+void test_posponer_alarma(void) {
+  clock_t reloj;
+  static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
+  static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
+  static const hora_t SNOOZED_TIME = {0, 6, 0, 5, 0, 0};
 
-    reloj = CreateClock(TICK_PER_SECOND, BuzzerOn);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SetupAlarmClock(reloj, ALARM_TIME);
-    SimulateClockTicks(reloj, ONE_HOUR);         
-    TEST_ASSERT_TRUE(alarma_sono);
+  reloj = CreateClock(TICK_PER_SECOND, BuzzerOn);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SetupAlarmClock(reloj, ALARM_TIME);
+  SimulateClockTicks(reloj, ONE_HOUR);
+  TEST_ASSERT_TRUE(alarma_sono);
 
-    alarma_sono = false;
-    SetupAlarmClock(reloj, SNOOZED_TIME);        
-    SimulateClockTicks(reloj, FIVE_MINUTE);     
-    TEST_ASSERT_TRUE(alarma_sono);                          
+  alarma_sono = false;
+  SetupAlarmClock(reloj, SNOOZED_TIME);
+  SimulateClockTicks(reloj, FIVE_MINUTE);
+  TEST_ASSERT_TRUE(alarma_sono);
 }
 
 //‣ Hacer sonar la alarma y cancelarla hasta el otro dia
-void test_cancelar_alarma(void){
-    clock_t reloj;
-    static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
-    static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
+void test_cancelar_alarma(void) {
+  clock_t reloj;
+  static const hora_t INITIAL_TIME = {0, 5, 0, 0, 0, 0};
+  static const hora_t ALARM_TIME   = {0, 6, 0, 0, 0, 0};
 
-    reloj = CreateClock(TICK_PER_SECOND, BuzzerOn);
-    (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
-    SetupAlarmClock(reloj, ALARM_TIME);
-    SimulateClockTicks(reloj, ONE_HOUR);            
-    TEST_ASSERT_TRUE(alarma_sono);
+  reloj = CreateClock(TICK_PER_SECOND, BuzzerOn);
+  (void)SetupCurrentTimeClock(reloj, INITIAL_TIME);
+  SetupAlarmClock(reloj, ALARM_TIME);
+  SimulateClockTicks(reloj, ONE_HOUR);
+  TEST_ASSERT_TRUE(alarma_sono);
 
-    alarma_sono = false;
-    ToggleAlarmClock(reloj);                        
-    SimulateClockTicks(reloj, TWENTY_FOUR_HOURS);   
-    TEST_ASSERT_FALSE(alarma_sono);                 
-} 
+  alarma_sono = false;
+  ToggleAlarmClock(reloj);
+  SimulateClockTicks(reloj, TWENTY_FOUR_HOURS);
+  TEST_ASSERT_FALSE(alarma_sono);
+}

@@ -5,4 +5,4 @@ repos:
         name: clang-format (Local)
         entry: clang-format -i
         language: system
-        files: ^hal/
+        files: ^(hal|inc|src|test)/.*\.(c|h|cpp|hpp)$

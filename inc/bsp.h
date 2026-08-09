@@ -14,10 +14,10 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  */
 
 /** * @addtogroup LAB6 LAB6 - Abstracción de Hardware
- * @brief Módulo encargado de acoplar los objetos genéricos de la HAL con el 
- * hardware específico de la placa de desarrollo EDU-CIAA-NXP y poncho. Oculta la 
+ * @brief Módulo encargado de acoplar los objetos genéricos de la HAL con el
+ * hardware específico de la placa de desarrollo EDU-CIAA-NXP y poncho. Oculta la
  * asignación física de puertos, pines y lógicas eléctricas de la aplicación.
- * @{ 
+ * @{
  */
 /* === Headers files inclusions ================================================================ */
 
@@ -43,15 +43,15 @@ extern "C" {
  */
 
 typedef struct board_s {
-    digital_input_t F1;         /**< Pulsador KEY 4 */
-    digital_input_t F2;         /**< Pulsador KEY 3 */
-    digital_input_t F3;         /**< Pulsador KEY 2 */
-    digital_input_t F4;         /**< Pulsador KEY 1 */
-    digital_input_t ACEPTAR;    /**< Pulsador ACEPTAR */
-    digital_input_t CANCELAR;   /**< Pulsador CANCELAR */
-    digital_output_t LED;       /**< Salida LED*/
-    display_t DISPLAY;          /**< Pantalla multiplexada 7 segmentos */
-} const * board_t; 
+  digital_input_t F1;       /**< Pulsador KEY 4 */
+  digital_input_t F2;       /**< Pulsador KEY 3 */
+  digital_input_t F3;       /**< Pulsador KEY 2 */
+  digital_input_t F4;       /**< Pulsador KEY 1 */
+  digital_input_t ACEPTAR;  /**< Pulsador ACEPTAR */
+  digital_input_t CANCELAR; /**< Pulsador CANCELAR */
+  digital_output_t LED;     /**< Salida LED*/
+  display_t DISPLAY;        /**< Pantalla multiplexada 7 segmentos */
+} const *board_t;
 
 /* === Private function declarations =========================================================== */
 

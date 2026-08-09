@@ -38,7 +38,7 @@ extern "C" {
 /* === Public macros definitions =================================================================================== */
 
 /** @brief Puerto GPIO compartido por los cuatro dígitos del display */
-#define DIGITS_GPIO   0
+#define DIGITS_GPIO 0
 
 #define DIGIT_1_PORT 0
 #define DIGIT_1_PIN  0
@@ -122,8 +122,7 @@ extern "C" {
 #define SEGMENT_G_BIT  6
 #define SEGMENT_G_MASK (1 << SEGMENT_G_BIT)
 
-#define SEGMENTS_MASK (SEGMENT_A_MASK | SEGMENT_B_MASK | SEGMENT_C_MASK | \
-                       SEGMENT_D_MASK | SEGMENT_E_MASK | SEGMENT_F_MASK | SEGMENT_G_MASK)
+#define SEGMENTS_MASK (SEGMENT_A_MASK | SEGMENT_B_MASK | SEGMENT_C_MASK | SEGMENT_D_MASK | SEGMENT_E_MASK | SEGMENT_F_MASK | SEGMENT_G_MASK)
 
 #define SEGMENT_P_PORT 6
 #define SEGMENT_P_PIN  8

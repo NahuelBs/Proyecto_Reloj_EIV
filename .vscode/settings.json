@@ -4,5 +4,14 @@
         "cstdlib": "c",
         "chip.h": "c",
         "stdbool.h": "c"
+    },
+    "C_Cpp.clang_format_path": null,
+    "C_Cpp.clang_format_style": "file",
+    "editor.formatOnSave": true,
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
     }
 }

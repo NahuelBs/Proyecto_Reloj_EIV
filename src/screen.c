@@ -13,8 +13,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  * @brief Implementación del controlador portable de pantalla multiplexada de 7 segmentos.
  */
 
- /** * @addtogroup LAB6
- * @{ 
+/** * @addtogroup LAB6
+ * @{
  */
 /* === Headers files inclusions ==================================================================================== */
 
@@ -36,15 +36,15 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  */
 
 struct display_s {
-    uint8_t digits;                             /**< Cantidad de dígitos de la pantalla */
-    uint8_t active_digit;                       /**< Dígito activo en el barrido */
-    uint8_t flashing_from;                      /**< Primer dígito con parpadeo habilitado */
-    uint8_t flashing_to;                        /**< Último dígito con parpadeo habilitado */
-    uint16_t flashing_frecuency;                /**< Divisor de frecuencia para el parpadeo */
-    uint16_t flashing_count;                    /**< Contador de ciclos de refresco para parpadeo */
-    uint8_t display_memory[DISPLAY_MAX_DIGITS]; /**< Patrón de segmentos por dígito */
-    bool used;
-    struct display_driver_s driver[1];          /**< Callbacks de acceso al hardware */
+  uint8_t digits;                             /**< Cantidad de dígitos de la pantalla */
+  uint8_t active_digit;                       /**< Dígito activo en el barrido */
+  uint8_t flashing_from;                      /**< Primer dígito con parpadeo habilitado */
+  uint8_t flashing_to;                        /**< Último dígito con parpadeo habilitado */
+  uint16_t flashing_frecuency;                /**< Divisor de frecuencia para el parpadeo */
+  uint16_t flashing_count;                    /**< Contador de ciclos de refresco para parpadeo */
+  uint8_t display_memory[DISPLAY_MAX_DIGITS]; /**< Patrón de segmentos por dígito */
+  bool used;
+  struct display_driver_s driver[1]; /**< Callbacks de acceso al hardware */
 };
 
 /* === Private function declarations ================================================================================ */
@@ -54,7 +54,7 @@ static display_t DisplayAllocate(void);
 /* === Private variable definitions ================================================================================= */
 
 /*
- Tabla de búsqueda BCD a 7 segmentos. 
+ Tabla de búsqueda BCD a 7 segmentos.
  */
 
 static const uint8_t IMAGES[] = {
@@ -73,9 +73,9 @@ static const uint8_t IMAGES[] = {
 /* === Private function implementation ============================================================================== */
 
 static display_t DisplayAllocate(void) {
-    static struct display_s instances[1] = {0}; //<- instances (cantidad de pantallas)
+  static struct display_s instances[1] = {0};     //<- instances (cantidad de pantallas)
 
-    return &instances[0];
+  return &instances[0];
 }
 
 /* === Public function implementation ============================================================================== */
@@ -86,24 +86,24 @@ static display_t DisplayAllocate(void) {
  */
 
 display_t DisplayCreate(uint8_t digits, display_driver_t driver) {
-    display_t display = DisplayAllocate();
+  display_t display = DisplayAllocate();
 
-    if (display) {
-        display->digits = digits;
-        display->active_digit = digits - 1; //se inicializa el ultimo display asi DisplayRefresh maneje como primer digito al primer display
-        display->flashing_count = 0;
-        display->flashing_from = 0;
-        display->flashing_to = 0;
-        display->flashing_frecuency = 0;
-        /*copia los callbacks del driver a la estructura del display, para que sea independiente de la 
-          estructura original — si el driver externo cambia o se libera después, no afecta al display */
-        memcpy(display->driver, driver, sizeof(display->driver));
-        /*limpia display_memory para que arranque sin segmentos prendidos*/
-        memset(display->display_memory, 0, sizeof(display->display_memory));
-        display->driver->UpdateSegments(0x00);
-    }
+  if (display) {
+    display->digits             = digits;
+    display->active_digit       = digits - 1;     //se inicializa el ultimo display asi DisplayRefresh maneje como primer digito al primer display
+    display->flashing_count     = 0;
+    display->flashing_from      = 0;
+    display->flashing_to        = 0;
+    display->flashing_frecuency = 0;
+    /*copia los callbacks del driver a la estructura del display, para que sea independiente de la
+      estructura original — si el driver externo cambia o se libera después, no afecta al display */
+    memcpy(display->driver, driver, sizeof(display->driver));
+    /*limpia display_memory para que arranque sin segmentos prendidos*/
+    memset(display->display_memory, 0, sizeof(display->display_memory));
+    display->driver->UpdateSegments(0x00);
+  }
 
-    return display;
+  return display;
 }
 
 /*
@@ -119,14 +119,14 @@ display_t DisplayCreate(uint8_t digits, display_driver_t driver) {
  dígitos sobrantes se ignoran.
 */
 
-void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size) {
-    memset(display->display_memory, 0, sizeof(display->display_memory));
-    for (int index = 0; index < size; index++) {
-        if (index >= display->digits) {
-            break;
-        }
-        display->display_memory[index] = IMAGES[number[index]];
+void DisplayWriteBCD(display_t display, uint8_t *number, uint8_t size) {
+  memset(display->display_memory, 0, sizeof(display->display_memory));
+  for (int index = 0; index < size; index++) {
+    if (index >= display->digits) {
+      break;
     }
+    display->display_memory[index] = IMAGES[number[index]];
+  }
 }
 
 /*
@@ -135,35 +135,36 @@ void DisplayWriteBCD(display_t display, uint8_t * number, uint8_t size) {
  */
 
 void DisplayRefresh(display_t display) {
-    uint8_t segments;
+  uint8_t segments;
 
-    display->driver->UpdateSegments(0x00);   //0x00 escritura en hexadecimal, le manda a UpdateSegments 00000000 (apagar todos los segmentos)
-    display->active_digit = (display->active_digit + 1) % display->digits; //linea de código encargada de determinar el siguiente display a encender
+  display->driver->UpdateSegments(0x00);     //0x00 escritura en hexadecimal, le manda a UpdateSegments 00000000 (apagar todos los segmentos)
+  display->active_digit = (display->active_digit + 1) % display->digits;     //linea de código encargada de determinar el siguiente display a encender
 
-    /*cuenta vueltas completas del barrido (se incrementa una vez por
-      cada ciclo), funcionando como un "clock lento" para
-      medir el tiempo del parpadeo*/
-    if (display->active_digit == 0) {
-        display->flashing_count++;
-        if (display->flashing_count >= display->flashing_frecuency) {
-            display->flashing_count = 0;
-        }
+  /*cuenta vueltas completas del barrido (se incrementa una vez por
+    cada ciclo), funcionando como un "clock lento" para
+    medir el tiempo del parpadeo*/
+  if (display->active_digit == 0) {
+    display->flashing_count++;
+    if (display->flashing_count >= display->flashing_frecuency) {
+      display->flashing_count = 0;
     }
+  }
 
-    segments = display->display_memory[display->active_digit];      //se guarda el valor que estaba en memoria en la variable segments para posteriormente
-                                                                    //enviarla a la funcion UpdateSegments
-    
-    //se implementa el parpadeo 
-    if (display->flashing_frecuency > 0) {                                       
-        if (display->flashing_count >= display->flashing_frecuency / 2) {
-            if ((display->active_digit >= display->flashing_from) && (display->active_digit <= display->flashing_to)) {
-                segments = 0;
-            }
-        }
+  segments =
+      display->display_memory[display->active_digit];     //se guarda el valor que estaba en memoria en la variable segments para posteriormente
+                                                          //enviarla a la funcion UpdateSegments
+
+  //se implementa el parpadeo
+  if (display->flashing_frecuency > 0) {
+    if (display->flashing_count >= display->flashing_frecuency / 2) {
+      if ((display->active_digit >= display->flashing_from) && (display->active_digit <= display->flashing_to)) {
+        segments = 0;
+      }
     }
+  }
 
-    display->driver->UpdateSegments(segments);  
-    display->driver->UpdateDigits(display->active_digit);
+  display->driver->UpdateSegments(segments);
+  display->driver->UpdateDigits(display->active_digit);
 }
 
 /*
@@ -171,19 +172,19 @@ void DisplayRefresh(display_t display) {
  parpadear y a qué velocidad (frecuencia).
 */
 void DisplayFlashDigits(display_t display, uint8_t from, uint8_t to, uint16_t frecuency) {
-    display->flashing_count = 0;
-    display->flashing_from = from;
-    display->flashing_to = to;
-    display->flashing_frecuency = frecuency;
+  display->flashing_count     = 0;
+  display->flashing_from      = from;
+  display->flashing_to        = to;
+  display->flashing_frecuency = frecuency;
 }
 
 /**
  * Conmuta el punto decimal de un rango de dígitos
  */
 void DisplayToggleDots(display_t display, uint8_t from, uint8_t to) {
-    for (int index = from; index <= to; index++) {
-        display->display_memory[index] ^= SEGMENT_P;
-    }
+  for (int index = from; index <= to; index++) {
+    display->display_memory[index] ^= SEGMENT_P;
+  }
 }
 
 /* === End of documentation ======================================================================================== */

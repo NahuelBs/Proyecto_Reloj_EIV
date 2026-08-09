@@ -39,7 +39,3 @@ MaxEmptyLinesToKeep: 1
 CommentPragmas: '^ *[^ ]'
 SeparateDefinitionBlocks: Always
 SpacesBeforeTrailingComments: 5
-
-
-
-

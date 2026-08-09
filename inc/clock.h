@@ -14,19 +14,19 @@ SPDX-License-Identifier: LicenseRef-Proprietary
  */
 
 /** * @addtogroup LAB7 LAB7 - TDD - Test Driven Development
- * @brief Módulo encargado de gestionar el tiempo actual, la configuración de 
+ * @brief Módulo encargado de gestionar el tiempo actual, la configuración de
  * alarmas, posposición de eventos y validación horaria utilizando formato BCD.
  * @{
  *
-*************************************************************************************************/
+ *************************************************************************************************/
 
 #ifndef CLOCK_H
 #define CLOCK_H
 
 /* === Headers files inclusions ================================================================ */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* === Header C++ ============================================================================== */
 
@@ -41,12 +41,12 @@ extern "C" {
  */
 
 typedef enum {
-    HOUR_TENS,      /**< Posición 1: decenas de hora */
-    HOUR_ONES,      /**< Posición 2: unidades de hora */
-    MINUTE_TENS,    /**< Posición 3: decenas de minuto */
-    MINUTE_ONES,    /**< Posición 4: unidades de minuto */
-    SECOND_TENS,    /**< Posición 5: decenas de segundo */
-    SECOND_ONES,    /**< Posición 6: unidades de segundo */
+  HOUR_TENS,   /**< Posición 1: decenas de hora */
+  HOUR_ONES,   /**< Posición 2: unidades de hora */
+  MINUTE_TENS, /**< Posición 3: decenas de minuto */
+  MINUTE_ONES, /**< Posición 4: unidades de minuto */
+  SECOND_TENS, /**< Posición 5: decenas de segundo */
+  SECOND_ONES, /**< Posición 6: unidades de segundo */
 } hora_index_t;
 
 /* === Public data type declarations =========================================================== */
@@ -55,7 +55,7 @@ typedef enum {
  * @brief Puntero opaco a la estructura interna del reloj.
  */
 
-typedef struct clock_s * clock_t;
+typedef struct clock_s *clock_t;
 
 /**
  * @brief Arreglo para almacenar el tiempo en formato BCD.
@@ -104,8 +104,8 @@ bool GetCurrentTimeClock(clock_t clock, hora_t current_time);
 
 /**
  * @brief Notifica al reloj el paso de un flanco (tick).
- * Incrementa el contador interno de flancos. Al alcanzar la cantidad 
- * configurada por segundo, procesa el avance del tiempo en formato BCD 
+ * Incrementa el contador interno de flancos. Al alcanzar la cantidad
+ * configurada por segundo, procesa el avance del tiempo en formato BCD
  * resolviendo los desbordamientos de segundos, minutos y horas.
  *
  * @param[in] clock Puntero a la instancia del reloj.
